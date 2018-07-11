@@ -1,0 +1,4 @@
+module.exports = {
+    NODE_ENV: '"production"',
+    API_ROOT: '"/api"' // 老域名 jicai-wap-ts.fengyelicai.xin/api
+}

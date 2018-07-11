@@ -1,0 +1,61 @@
+<template>
+  <!-- 父组件举例 -->
+ <!-- <Button :message='message' :disabled='disabled'  :style="{height:'8rem'}" @change="topush"> </Button> -->
+<transition name="fade" mode="out-in" appear>
+<button class="jc-button"   :disabled="disabled" v-on:click="$emit('change')">
+	<!-- :style="{Style}" -->
+	<slot>{{message}}</slot>
+</button>
+
+</transition>
+</template>
+<style  lang="less" type="text/css">
+.jc-button {
+  width: 90%;
+  background: @mainColor;
+  margin: 0 auto!important;
+  box-shadow: 0 6px 6px 0 rgba(255, 82, 64, 0.2);
+  margin: 0 auto;
+  font-size: 1.4rem;
+  color: #ffffff;
+  letter-spacing: 0;
+  text-align: center;
+  padding: 1.4rem 7.3rem!important;
+  display: block;
+  margin-top: 4rem!important;
+  margin-bottom: 1rem!important;
+	border-radius: 0.4rem!important;
+}
+.jc-button:disabled {
+  background: @disColor;
+  box-shadow: 0 6px 6px 0 rgba(255, 82, 64, 0.2);
+}
+
+</style>
+<script>
+export default {
+  props: {
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    message: {
+      type: String
+    },
+    // style1: {
+    // 	 type: Object,
+    //    default: {}
+    // },
+  },
+   data() {
+    return {
+    
+    };
+  },
+  computed: {
+    // Style(){
+    // 	return {...this.style1,width:this.style1.width, height : this.style1.height,lineHeight:this.style1.height}
+    // }
+  }
+};
+</script>

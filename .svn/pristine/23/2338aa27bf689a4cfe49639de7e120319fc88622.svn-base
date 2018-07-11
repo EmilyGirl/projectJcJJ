@@ -1,0 +1,59 @@
+var utils = require('./utils')
+var webpack = require('webpack')
+var config = require('../config')
+var merge = require('webpack-merge')
+var baseWebpackConfig = require('./webpack.base.conf')
+var HtmlWebpackPlugin = require('html-webpack-plugin')
+var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
+
+
+
+// 加速打包
+const HappyPack = require('happypack');
+const os = require('os');
+const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
+var vueLoaderConfig = require('./vue-loader.conf')
+
+// 加速打包
+
+
+// add hot-reload related code to entry chunks
+Object.keys(baseWebpackConfig.entry).forEach(function (name) {
+  baseWebpackConfig.entry[name] = ['./build/dev-client'].concat(baseWebpackConfig.entry[name])
+})
+
+module.exports = merge(baseWebpackConfig, {
+  module: {
+    rules: utils.styleLoaders({ sourceMap: config.dev.cssSourceMap })
+  },
+  // cheap-module-eval-source-map is faster for development
+  devtool: '#cheap-module-eval-source-map',
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env': config.dev.env
+    }),
+
+    new HappyPack({
+      //用id来标识 happypack处理那里类文件
+    id: 'happyBabel',
+    //如何处理  用法和loader 的配置一样
+    loaders: [{
+      loader: 'babel-loader?cacheDirectory=true',
+    }],
+    //共享进程池
+    threadPool: happyThreadPool,
+    //允许 HappyPack 输出日志
+    verbose: true,
+  }),
+    // https://github.com/glenjamin/webpack-hot-middleware#installation--usage
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoEmitOnErrorsPlugin(),
+    // https://github.com/ampedandwired/html-webpack-plugin
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: 'index.html',
+      inject: true
+    }),
+    new FriendlyErrorsPlugin()
+  ]
+})

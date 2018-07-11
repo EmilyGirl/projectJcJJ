@@ -1,0 +1,156 @@
+<template>
+    <div class="bk_ud_p">
+        <header>
+            请上传本人手持身份证（正反面）及银行卡的照片，证件上的信息无遮挡，清晰可见。
+            <router-link to="/"> 查看示例>></router-link>
+        </header>
+
+        <div v-for="(item,index) of data">
+            <div class="defaultImg">
+                <div class="upload_photos" :style="{'backgroundImage':'url('+item.bg+')'}">
+                    <input type="file" class="upload_input" accept="image/png,image/jpeg" @change="getFile($event,index)">
+                    <p class="text">{{item.text}}</p>
+                </div>
+            </div>
+            <div class="middle_white"></div>
+        </div>
+
+
+        <Button @click='Submission'  :style="{marginTop:0}">
+            下一步
+        </Button>
+        <div class="middle_white"></div>
+        <div class="middle_white"></div>
+    </div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import { usernameKey, authKey, authName } from "@/config/config.js";
+import axios from 'axios'
+import {
+    getCookie,
+    getoriginal,
+    decryptByDES,
+    uncompile
+} from "@/config/common.js";
+export default {
+    data() {
+        return {
+            data: [
+                // "https://ss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1620249723.png",
+                // "https://ss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1620249723.png",
+                // "https://ss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1620249723.png"
+                // "",
+                // "",
+                // ""
+                {bg : '' , text:'手持身份证正面'},
+                   {bg : '' , text:'手持身份证反面'},
+                      {bg : '' , text:'手持银行卡卡号面'}
+            ]
+        };
+    },
+    created: function() {},
+    methods: {
+        
+        getFile(event, type) {
+            let _this = this;
+            let files = event.target.files[0];
+             var  formData = new FormData();// 创建form对象  s
+                   formData.append('imgStr',files)
+                   console.log(formData)
+                       let config = {  
+            headers:{'Content-Type':'multipart/form-data'}  
+        };  //添加请求头  
+
+
+                _this.$http
+                    .form("/Product/UploadNew/upLoadUserImgAndShowNew", formData)
+                    .then(res => {
+                        if (res.data.end == "ok") {
+                            console.log(res.data);
+                            _this.data.splice(
+                                type,
+                                1,
+                               {bg: res.data.data.userImgUrl,text:''}
+                            );
+                        } else {
+                            this.$Toast(res.data.message);
+                        }
+                    });
+            // }
+
+
+
+
+
+    
+        },
+        Submission() {
+            // alert("xiyibu");
+        }
+    }
+};
+</script>
+
+<style lang="less" >
+@import url("../../../assets/css/wechat/reset_rem.css");
+.bk_ud_p {
+    background: #fff;
+    .middle_white {
+        width: 100%;
+        height: 3rem;
+    }
+    header {
+        font-size: 1.3rem;
+        color: #999;
+        height: 5rem;
+        line-height: 1.6rem;
+        padding: 2rem 2rem;
+        a {
+            color: #4c9fff;
+        }
+    }
+    .upload_photos {
+        position: relative;
+        width: 88%;
+        border: 1px solid #c5d2eb;
+              border-radius: 2px;
+        margin: 0 auto;
+        height: 12rem;
+        border-radius: 2px;
+        background-image: url("../../../assets/img/wechat/product/common_icon_tianjia.png");
+        background-position: center;
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        .text {
+            position: absolute;
+            bottom: 1.2rem;
+            width: 100%;
+            text-align: center;
+            color: #FFFFFF;
+                font-size: 1rem;
+                letter-spacing: 2px;
+              }
+        }
+    .defaultImg {
+        padding: 0.8rem 0;
+        width: 65.3%;
+        margin: 0 auto;
+        // background-color: #ccd8ed;
+        background: #CCD8ED;
+     
+        height: 12rem;
+        border-radius: 2px;
+        background-image: url("../../../assets/img/wechat/product/common_icon_tianjia.png");
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .upload_input {
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+    }
+
+}
+</style>

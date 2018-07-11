@@ -1,0 +1,11 @@
+
+ // 主色
+@mainColor : #FF5240;
+//  详情渐变
+@gradients : linear-gradient(0deg, #FF845B 3%, #FF4E4E 100%); 
+// 按钮 disabled  颜色
+@disColor : #FFA8A8;
+//  项目 进度 和  预计年化 颜色
+@preColor : #FF6000 ;
+// 进度条渐变色
+@progressGradients :linear-gradient(90deg, #FFA6A0 0%,  #FFFFFF 100%);

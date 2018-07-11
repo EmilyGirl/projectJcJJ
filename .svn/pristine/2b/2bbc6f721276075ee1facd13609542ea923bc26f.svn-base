@@ -1,0 +1,26 @@
+<template>
+	<div class="safe">
+		<!--<img src="../../assets/img/about_jc.png" alt="" />-->
+		<img class="img1" src="../../assets/img/xp/cgsm/aboutCg_01.png" alt="" />
+			<img class="img2" src="../../assets/img/xp/cgsm/aboutCg_02.png" alt="" />
+            	<img class="img3" src="../../assets/img/xp/cgsm/aboutCg_03.png" alt="" />
+                	<img class="img4" src="../../assets/img/xp/cgsm/aboutCg_04.png" alt="" />
+	</div>
+</template>
+
+<script>
+import reset_rem from "../../assets/js/wechat/reset_rem.js";
+export default {
+  name: "aboutCG",
+  data: function() {
+    return {};
+  }
+};
+</script>
+
+<style scoped>
+@import url("../../assets/css/wechat/reset_rem.css");
+.safe{
+    width: 100%;
+}
+</style>

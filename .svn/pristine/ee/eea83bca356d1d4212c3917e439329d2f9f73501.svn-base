@@ -1,0 +1,285 @@
+<template>
+    <div class="bk_ud_p">
+        <header>
+            请上传本人手持身份证（正反面）及银行卡的照片，证件上的信息无遮挡，清晰可见。
+            <router-link to="/"> 查看示例>></router-link>
+        </header>
+
+        <div v-for="(item,index) of data">
+            <div class="defaultImg">
+                <div class="upload_photos" :style="{'backgroundImage':'url('+item.bg+')'}">
+                    <input type="file" class="upload_input" accept="image/png,image/jpeg" @change="getFile($event,index)">
+                    <p class="text">{{item.text}}</p>
+                    <div class="progress" v-show="item.showProgress">
+                        <p>{{item.progress}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="middle_white"></div>
+        </div>
+
+        <Button @click.native='Submission' :style="{marginTop:0}">
+            下一步
+        </Button>
+        <div class="middle_white"></div>
+        <div class="middle_white"></div>
+        <div class="popup" v-show="showPopup">
+            <div class="popup_main">
+                <p class="header">
+                    <b>提示</b>
+                </p>
+                <p class="tips">确定提交以上信息申请解绑银行卡？</p>
+                <div class="button_wrap">
+                    <p class="cancel" @click="showPopup = false">取消</p>
+                    <p class="confirm" @click="confirm">确定</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import { usernameKey, authKey, authName } from "@/config/config.js";
+import {
+    getCookie,
+    getoriginal,
+    decryptByDES,
+    uncompile
+} from "@/config/common.js";
+export default {
+    data() {
+        return {
+            showPopup: false,
+            data: [
+                {
+                    bg: "",
+                    text: "手持身份证正面",
+                    showProgress: false,
+                    progress: "0%"
+                },
+                {
+                    bg: "",
+                    text: "手持身份证反面",
+                    showProgress: false,
+                    progress: "0%"
+                },
+                {
+                    bg: "",
+                    text: "手持银行卡卡号面",
+                    showProgress: false,
+                    progress: "0%"
+                }
+            ],
+            imgData: {
+                imgUrlOne: "",
+                imgUrlTwo: "",
+                imgUrlThree: ""
+            }
+        };
+    },
+    created: function() {},
+    methods: {
+        confirm() {},
+        getFile(event, type) {
+            let _this = this;
+            let files = event.target.files[0];
+            var formData = new FormData(); // 创建form对象  s
+            formData.append("imgStr", files);
+            console.log(formData);
+            let config = {
+                headers: { "Content-Type": "multipart/form-data" }
+            }; //添加请求头
+
+            _this.$http
+                .form(
+                    "/Product/UploadNew/upLoadUserImgAndShowNew",
+                    formData,
+                    function(progressEvent) {
+                        let complete =
+                            ((progressEvent.loaded /
+                                progressEvent.total *
+                                100) |
+                                0) +
+                            "%";
+                        _this.data.splice(type, 1, {
+                            bg: "",
+                            text: "",
+                            showProgress: true,
+                            progress: complete
+                        });
+                    }
+                )
+                .then(res => {
+                    if (res.data.end == "ok") {
+                        console.log(res.data);
+                        _this.data.splice(type, 1, {
+                            bg: res.data.data.userImgUrl,
+                            text: "",
+                            showProgress: false,
+                            progress: "0%"
+                        });
+
+                        if (type == 0) {
+                            imgData.imgUrlOne = res.data.data.userImgUrl;
+                        } else if (type == 1) {
+                            imgData.imgUrlTwo = res.data.data.userImgUrl;
+                        } else {
+                            imgData.imgUrlThree = res.data.data.userImgUrl;
+                        }
+                    } else {
+                        this.$Toast(res.data.message);
+                    }
+                });
+            // }
+        },
+        Submission() {
+            var arr = this.data.filter(item => item.bg);
+            if (arr.length == 3) {
+                this.showPopup = true;
+            } else {
+                this.$Toast("请上传对应图片");
+            }
+
+            //             imgUrlOne	是	string	图片地址01
+            // imgUrlTwo	是	string	图片地址02
+            // imgUrlThree
+        }
+    }
+};
+</script>
+
+<style lang="less" >
+@import url("../../../assets/css/wechat/reset_rem.css");
+.bk_ud_p {
+    background: #fff;
+    .middle_white {
+        width: 100%;
+        height: 3rem;
+    }
+    header {
+        font-size: 1.3rem;
+        color: #999;
+        height: 5rem;
+        line-height: 1.6rem;
+        padding: 2rem 2rem;
+        a {
+            color: #4c9fff;
+        }
+    }
+    .upload_photos {
+        position: relative;
+        width: 88%;
+        border: 1px solid #c5d2eb;
+        border-radius: 2px;
+        margin: 0 auto;
+        height: 11rem;
+        border-radius: 2px;
+        // background-image: url("../../../assets/img/wechat/product/common_icon_tianjia.png");
+        // background-position: center;
+        // background-size: 100% 100%;
+        // background-repeat: no-repeat;
+        .text {
+            position: absolute;
+            bottom: 1.2rem;
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+    }
+    .defaultImg {
+        padding: 0.8rem 0;
+        width: 65.3%;
+        margin: 0 auto;
+        background: #ccd8ed;
+
+        height: 11rem;
+        border-radius: 2px;
+        background-image: url("../../../assets/img/wechat/product/common_icon_tianjia.png");
+        background-position: center;
+        background-size: 13%;
+        background-repeat: no-repeat;
+    }
+    .upload_input {
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+    }
+    .progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("../../../assets/img/wechat/product/uploadDefault.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        p {
+            width: 4.5rem;
+            height: 4.5rem;
+            border-radius: 100px;
+            background-color: rgba(0, 0, 0, 0.5);
+            text-align: center;
+            line-height: 4.5rem;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+    }
+    .popup {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        .popup_main {
+            margin-top: 70%;
+            width: 70%;
+            margin-left: 10%;
+            text-align: center;
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 2rem 5%;
+        }
+        .header {
+            color: #202020;
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+        .tips {
+            color: #606060;
+            font-size: 1.5rem;
+            padding-top: 1rem;
+            line-height: 2.4;
+        }
+        .button_wrap {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 3rem;
+            p {
+                text-align: center;
+                width: 40%;
+                height: 3.3rem;
+                line-height: 3.3rem;
+                font-size: 1.2rem;
+            }
+            .cancel {
+                border: 1px solid #a0a0a0;
+                border-radius: 5px;
+                color: #a0a0a0;
+            }
+            .confirm {
+                background-color: #ff5240;
+                border-radius: 5px;
+                color: #ffffff;
+            }
+        }
+    }
+}
+</style>

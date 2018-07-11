@@ -1,0 +1,411 @@
+<template>
+	<div class="withdraw">
+		<form @submit.prevent="submit">
+			<div class="normal">
+        <div class="withdrawBank" >
+          <div style="display:flex">
+            <img class="withdrawbank1" src="../../../assets/img/wechat/mineJ/home_icon_jiujiangbank.png" alt="">
+            <div style="padding-top:.5rem;"> 
+              <span class="withdrawcunguan">九江银行</span><br>
+            <span class="withdrawtext">存管账户</span></div>
+          </div>
+          <div>
+            <img style="width:2rem" src="../../../assets/img/wechat/mine/tixiantiaozhuan.png" alt="">
+          </div>
+           <div style="display:flex">
+            <img style="width:4rem;height: 4rem;margin-right:.5rem"  :src="list.bankURI" alt="">
+            <div style="padding-top:.5rem;"> 
+              <span style="font-size:1.4rem;
+color: #202020;font-weight:bold;display:inline-block;margin-bottom:0.8rem">{{list.bankName}}</span><br>
+            <span style="font-size: 1.2rem;
+color: #202020;">尾号（{{list.cardLast}}）</span></div>
+           
+          </div>
+        </div>
+				<!-- <div class="first" v-for="list in lists">
+					<p class="bkTitle">提现到</p>
+					<div class="icommon bank">
+						<div class="bankText ">
+							<p>{{list.bankName}}（{{list.cardLast }}）</p>
+							<label class="bankImg"><img :src="list.bankURI"/></label>
+						</div>
+					</div>
+				</div> -->
+
+			</div>
+			<!--<div class="input-list" v-for="list in lists">
+				<div class="icommon bank">
+					<label class="bankImg"><img :src="list.bankURI"/></label>
+					<div class="bankText">
+						<p>{{list.bankName}}（{{(obj.leftMoney/100).toFixed(2)}}）</p>
+						<p>单笔限额：{{list.oneTimes}}元 单日最高：{{list.dayTimes}}元</p>
+					</div>
+				</div>
+			</div>-->
+			<div class="normal">
+
+				<p class="left">九江银行存管余额<span class="light"> {{(obj.leftMoney/100).toFixed(2)}} </span>元</p>
+       <div class="withdrawline"></div>
+				<div class="input-list clearfix">
+          <div class="withdrawmoney">提现金额(元)</div>
+					<div class="icommon_input">
+						<label>￥</label>
+						<!--<input class="" type="text" v-model="rMoney" maxlength="7" name="" value="" placeholder="请输入提现金额" @keyup="unNull" />-->
+						<input class="" type="text" v-model="rMoney"  name=""  value="" placeholder="请输入提现金额"  />
+						<span class="all" @click="all">全部</span>
+					</div>
+
+				</div>
+			</div>
+			<!--<div class="footTitle left">
+				<p>本月剩余免费提现次数 {{3}}次</p>
+				<p>提现手续费：0.00元</p>
+				<p>实际到账：0.00元</p>
+			</div>-->
+
+			<!-- <button :class="{loginBtn:loginBtn}" class="boolBtn" type="submit" :disabled="!loginBtn">确认提现</button> -->
+      	<Button  :message='message1' :disabled='!loginBtn' :style="{width:'92%'}"> </Button>
+		</form>
+		<p style="padding-left:1.5rem;text-align: left;font-size: 1.2rem; color: #999999;margin-top:4rem">注：提现申请成功将会在下一工作日处理成功。</p>
+		<div class="reminder">
+			<!-- <p>若有任何疑问，请及时联系我们</p>
+			<p class="reminder_phone"><i class="reminder_phoneico"></i> <a :href='"tel:"+tel' style="color: #2772FF;"><span>{{tel}}</span></a></p>
+			<p>工作日9：00-21：00</p> -->
+      <!-- <img style="width:24rem" src="../../../assets/img/wechat/mine/jiujiangdibu.png" alt=""> -->
+      <v-footer :style="{position: 'fixed',bottom: 0}"/>
+		</div>
+		<!-- <vue-pay-keyboard :isPay='isPay' @pas-end='pasEnd' @close='closes' ref="pay" :countDown='countDown' @get-securit='getSecurit' :securityBtnCan='securityBtn' :payTitle='payTitle'></vue-pay-keyboard> -->
+		<transition name="fade">
+			<div class="welfare-close" v-if="close">{{ message }} </div>
+		</transition>
+     <!-- <div style="padding: .8rem 1.6rem;font-size: 1.4rem;line-height: normal;color: #202020;background: #F5F5F5;">换卡审核中</div> -->
+	</div>
+</template>
+
+<script>
+import { createForm } from "@/config/common.js";
+import footer from "@/components/wechat/public/Footer";
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import {
+  usernameKey,
+  authKey,
+  authName,
+  usernameName
+} from "@/config/config.js";
+export default {
+  name: "wx_recharge",
+  components: {
+    "v-footer": footer
+  },
+  data() {
+    return {
+      tel: "400-005-3300",
+      lists: [],
+      withdraw: "withdraw",
+      message: "",
+      close: false,
+      message1: "确认提现",
+      loginBtn: false,
+      //tips: false,
+      codeTitle: "获取验证码",
+      findYzm: false,
+      yzm: "",
+      rMoney: "",
+      list: [],
+      obj: {},
+      leftMoney: "0",
+      username: "",
+      isPay: false,
+      countDown: "20s后重新获取",
+      countBool: false,
+      second: 20,
+      preventTime: true,
+      securityBtn: true,
+      payTitle: "请输入交易密码",
+      payType: "",
+      orderid: "",
+      cardId: "",
+      realPwd: "",
+      xianhuanka: false
+    };
+  },
+  watch: {
+    rMoney: function(val) {
+      console.log(val);
+      if (this.rMoney.length != 0) {
+        if(this.rMoney==0){  
+          this.loginBtn = false;
+          }else{
+         this.loginBtn = true;
+        }
+        // this.loginBtn = true;
+      } else {
+        this.loginBtn = false;
+      }
+      //   最多输入小数点后两位
+      this.rMoney = this.rMoney.replace(/^(\D+(\.\D{1,2})?)$/, "");
+      this.rMoney = this.rMoney.replace(/^(\d+\.\d{1,2}).*$/, "$1"); ///^(^(\d+(.{0,1}\d+)?))$/
+    }
+  },
+  created: function() {
+    var _this = this;
+    _this.leftMoney = parseFloat(_this.leftMoney).toFixed(2);
+    //_this.username = _this.$decryptByDES(_this.$getCookie(usernameName), usernameKey);
+    _this.username &&
+      (_this.username = this.$decryptByDES(
+        this.$getCookie(usernameName),
+        this.$uncompile(usernameKey)
+      ));
+    _this.$http
+      .post("/Product/User/showMyAccountNew", {
+        parameters: "{}"
+      })
+      .then(function(res) {
+        if (res.data.end == "ok") {
+          _this.obj = res.data.obj;
+          if (res.data.list) {
+            _this.list = res.data.list[0];
+          }
+          if (res.data.list[0].bankStatus == "0") {
+            if (res.data.list[0].bankCardstatus != "0") {
+              _this.xianhuanka = true;
+            }
+          }
+          _this.leftMoney = parseFloat(res.data.obj.leftMoney).toFixed(2);
+          //console.log(_this.user);
+          // _this.lists = res.data.list;
+          //						console.log(res.data.list);
+        } else if (res.data.end == "noLogin") {
+          _this.message = res.data.message;
+          _this.close = true;
+          setTimeout(function() {
+            _this.close = false;
+            _this.start();
+          }, 1000);
+        }
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+  },
+  methods: {
+    submit() {
+      this.payShow();
+    },
+
+    //			unNull() {
+    //				if(this.rMoney.length != 0) {
+    //					this.loginBtn = true;
+    //				} else {
+    //					this.loginBtn = false;
+    //				}
+    //			},
+    payShow() {
+      var _this = this;
+      //   _this.times();
+
+      //
+      var formData = JSON.stringify({
+        mark: _this.withdraw,
+        baofooOrderId: "",
+        money: _this.rMoney
+      }); // 这里是你的表单数据
+      //alert(formData);
+      console.log(_this.rMoney);
+      if (_this.rMoney < 0) {
+        _this.close = true;
+        _this.message = "请输入大于1元的金额";
+        _this.loginBtn = false;
+        setTimeout(function() {
+          _this.close = false;
+          _this.loginBtn = true;
+        }, 1000);
+        return;
+      } else if (_this.rMoney > 1000000) {
+        //_this.rMoney >= _this.list.oneTimes
+        _this.close = true;
+        _this.message = "单笔提现金额不能超过100万元";
+        _this.loginBtn = false;
+        setTimeout(function() {
+          _this.close = false;
+          _this.loginBtn = true;
+        }, 1000);
+        return;
+      } else if (_this.rMoney > parseFloat(_this.leftMoney / 100)) {
+        _this.close = true;
+        _this.message = "提现金额不能超过用户余额";
+        _this.loginBtn = false;
+
+        setTimeout(function() {
+          _this.close = false;
+          _this.loginBtn = true;
+        }, 1000);
+        return;
+      }else if(_this.xianhuanka==true){
+          this.$Toast("换卡审核中，暂不提现")
+      } else {
+        _this.$http
+          .post("/Product/User/isActivate", {
+            parameters: "{}"
+          })
+          .then(function(res) {
+            console.log(res);
+            if (res.data.end == "ok") {
+              _this.code = res.data.data.code;
+              if (_this.code == 0) {
+                var money = _this.rMoney * 100;
+                _this.$http
+                  .post("/Product/New/RW/withdraw", {
+                    parameters: '{"amount":"' + money + '"}'
+                  })
+                  .then(function(res) {
+                    if (res.data.end == "ok") {
+                      createForm(res.data.data, res.data.url);
+                    } else {
+                      _this.$Toast(res.data.message);
+                    }
+                  })
+                  .catch(function(err) {});
+              } else {
+                _this.$Toast(res.data.data.msg);
+              }
+            } else {
+              _this.$Toast(res.data.data.msg);
+            }
+            console.log(res);
+          })
+          .catch(function(err) {
+            _this.$Toast(res.data.message);
+          });
+      }
+
+      //				_this.$http
+      //					.post("/Product/User/rechargeOrWithdrawCoupons", {
+      //						parameters: formData
+      //					})
+      //					.then(function(res) {
+      //						console.log(res);
+      //						if(res.data.end == "ok") {
+      //							_this.isPay = true;
+      //							//   _this.times();
+      //							_this.payType = res.data.type;
+      //							_this.orderid = res.data.orderid;
+      //							//							if(_this.payType=="bf"){
+      //							//								_this.payTitle="宝付支付提供本次支付服务";
+      //							//							}else if(_this.payType=="yb"){
+      //							//								_this.payTitle="易宝支付提供本次支付服务";
+      //							//							}
+      //							if(res.data.message != "") {
+      //								_this.close = true;
+      //								_this.message = res.data.message;
+      //								setTimeout(function() {
+      //									_this.close = false;
+      //								}, 1000);
+      //							} else {}
+      //						} else {
+      //							_this.close = true;
+      //							_this.message = res.data.message;
+      //							setTimeout(function() {
+      //								_this.close = false;
+      //							}, 1000);
+      //						}
+      //					})
+      //					.catch(function(err) {
+      //						console.log(err);
+      //					});
+    },
+
+    //			pasEnd(val) {
+    //				var _this = this;
+    //				var money = _this.rMoney;
+    //				_this.realPwd = val;
+    //				//console.log(val); //得到密码 可能会进行一些加密动作
+    //				setTimeout(() => {
+    //					// 模拟请求接口验证密码中 ..
+    //					this.$refs.pay.$payStatus(true); // 拿到子组件的事件
+    //				}, 1000);
+    //
+    //				var money = _this.rMoney;
+    //				var params = {
+    //					//   orderid: _this.orderid,
+    //					username: _this.username,
+    //					//   type: _this.payType,
+    //					trans_money: money,
+    //					//   accountId: _this.cardId,
+    //					payPassword: _this.realPwd
+    //				};
+    //				_this.$http
+    //					.post("/Product/User/baofooWithdrawals", {
+    //						/*parameters: '{"orderid":' + _this.orderid + ',"username":' + _this.username + ',"type":' + _this.payType + ',"amount":' + money + ',"accountId":' + _this.cardId + ',"validatecode":' + _this.realPwd' + '}'*/
+    //						parameters: JSON.stringify(params)
+    //					})
+    //					.then(function(res) {
+    //						if(res.data.end == "ok") {
+    //							_this.close = true;
+    //							_this.message = res.data.message;
+    //							setTimeout(function() {
+    //								_this.close = false;
+    //								setTimeout(function() {
+    //									_this.$router.push({
+    //										name: "dispose"
+    //									});
+    //								}, 1000);
+    //							}, 1000);
+    //						} else {
+    //							_this.close = true;
+    //							_this.message = res.data.message;
+    //							setTimeout(function() {
+    //								_this.close = false;
+    //								_this.$refs.pay.$payStatus(false);
+    //							}, 1000);
+    //						}
+    //					})
+    //					.catch(function(err) {
+    //						console.log(err);
+    //					});
+    //			},
+    closes() {
+      if (this.$refs.pay.val.length > 0) {
+        this.$refs.pay.val = [];
+      }
+      var _this = this; //配合使用
+      //clearInterval(window.countTime);
+      this.isPay = !_this.isPay;
+      //_this.times();
+      //配合使用-end
+    },
+    getSecurit() {
+      //this.payShow();
+    },
+    tixian() {
+      this.$router.push({
+        name: "dispose"
+      });
+    },
+    //全部提现
+    all() {
+      console.log(this.obj.leftMoney);
+      this.rMoney = parseFloat(this.obj.leftMoney / 100).toFixed(2);
+    }
+
+    //			zhuFun: function() {
+    //				this.$router.push({
+    //					path: 'register',
+    //					name: 'register',
+    //				});
+    //			},
+  }
+};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+@import url("../../../assets/css/wechat/jc_reset.css");
+@import url("../../../assets/css/wechat/layout.css");
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/withdraw.css");
+::-webkit-input-placeholder {
+  font-size: 2.2rem;
+  color: #c8c8c8;
+}
+</style>

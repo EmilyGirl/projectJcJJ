@@ -1,0 +1,14 @@
+/**
+ *  routers  分模块 书写  清爽很多
+ */
+import Vue from 'vue'
+import Router from 'vue-router'
+import oldLegacy from './old_legacy'
+import bank from './bank'
+import ACTIVITY from './activity'
+Vue.use(Router)
+export default new Router({routes: [
+  ...oldLegacy,
+  ...bank,
+  ...ACTIVITY
+]})

@@ -1,0 +1,279 @@
+<template>
+	<div class="login_regiester">
+		<!-- <transition  name="vux-pop-in"> -->
+			<!-- .lightSpeedIn ,
+.lightSpeedOut  -->
+    <transition     leave-active-class="lightSpeedOut">
+		<div  v-show="!go_password">
+			<div class="input-list">
+				<div class="title">
+					登录/注册
+				</div>
+				<!-- <div class="icommon"><input type="text" name="" v-model="user.username" maxlength="11" value="" placeholder="请输入手机号码" /></div> -->
+				<div class="icommon">
+					<input class="password" type="tel"   @input = "inputchange"   v-model="user.username" maxlength="16" placeholder="请输入手机号码" />
+					<img @click="clearInput($event)"      v-show = 'showClear'   class="hide" :src="imgUrl" />
+				</div>
+			</div>
+			<Button :disabled="loginBtn"  @click.native="next">下一步</Button>
+		</div>
+		</transition>
+				<!-- <transition  name="vux-pop-in"> -->
+	 <transition enter-active-class="lightSpeedIn" >
+			<div v-show="go_password">
+			<div class="input-list">
+				<div class="title">
+					欢迎回来
+				</div>
+				<div class="icommon"><input class="password" :type="inputType" v-model="user.password" maxlength="16" placeholder="请输入登录密码" />
+					<span @click="changeImg($event)"   class="hide">{{inputType  == "password"  ? '显示': '隐藏'}}</span>
+				</div>
+			</div>
+			<Button :disabled="loginBtn"  @click.native="submit">登录</Button>
+			<p class="go_regiester"   @click="forgetFun()">忘记密码？</p>
+		</div>
+		</transition>
+		<!-- <div class="login-bottom clearfix">
+			<p class="fl" @click="zhuFun()">立即注册？</p>
+			<p class="fr" @click="forgetFun()" style="color: #666;">忘记密码？</p>
+		</div> -->
+	<v-footer  bgColor="#fff"	:style="{position: 'fixed',bottom: 0}"/>
+	</div>
+</template>
+
+
+<script>
+
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import hide from "../../../assets/img/wechat/mine/clearInput.png";
+import footer from "@/components/wechat/public/Footer";
+import {
+    usernameKey,
+    authKey,
+    authName,
+    usernameName
+} from "@/config/config.js";
+export default {
+	name: "register",
+	components: {
+			'v-footer':footer
+		},
+    data() {
+        return {
+			go_password:false,
+			showClear:false,
+            user: {
+                username: "",
+                password: "",
+                phoneSys: "",
+                sysVersion: ""
+            },
+            inputType: "password",
+            imgUrl: hide,
+            message: "",
+            close: false,
+            loginBtn: false
+        };
+    },
+    methods: {
+        submit: function() {
+            var _this = this;
+            var formData = JSON.stringify(_this.user); //这里是你的表单数据
+            if (!/^\w{6,16}$/.test(_this.user.password)) {
+                _this.close = true;
+                _this.message = "密码至少为6位";
+                _this.loginBtn = true;
+                setTimeout(function() {
+                    _this.close = false;
+                    _this.loginBtn = false;
+                }, 1800);
+                return;
+            }
+
+            _this.$http
+                .post("/Product/login", {
+                    parameters: formData
+                })
+                .then(function(res) {
+                    if (res.data.end == "ok") {
+                        var auth = res.data.obj.authorization;
+                        var username = res.data.obj.username;
+
+                        //新加：设置 cookie  username 和 auth  :start
+                        _this.$setCookie(
+                            authName,
+                            _this.$encryptByDES(auth, _this.$uncompile(authKey))
+                        );
+                        _this.$setCookie(
+                            usernameName,
+                            _this.$encryptByDES(
+                                username,
+                                _this.$uncompile(usernameKey)
+                            )
+                        );
+                        var link = _this.$router.history.current.query.redirect;
+                        if (link) {
+                            location.replace(window.atob(link));
+                        } else {
+                            _this.$router.push({
+                                path: "/"
+                            });
+                        }
+                        //新加：设置 cookie  username 和 auth   :end
+                    } else if (res.data.end == "error") {
+                        _this.close = true;
+                        _this.message = res.data.message;
+                        setTimeout(function() {
+                            _this.close = false;
+                        }, 1800);
+                    }
+                })
+                .catch(function(err) {
+                    console.log(err);
+                });
+		},
+		next(){
+             if (!/^[1][345789][0-9]{9}$/.test(this.user.username)) {
+            this.$Toast('手机号格式有误')
+                return;
+            }
+               this.$http
+                .post("/Product/phoneIsRegister", {
+                    parameters: JSON.stringify({username:this.user.username})
+                }).then((res)=>{
+                   if(res.data.end == 'ok'){
+                     if(res.data.message  ==  1){
+                            this.go_password = true;
+                     }else{
+                            zhuFun()
+                     }
+                   }else{
+                       this.$Toast(res.data.message)
+                   }
+                }).catch((err)=>{
+                    console.log(err)
+                })
+		},
+        changeImg: function(e) {
+            if (this.inputType == "password") {
+                this.inputType = "text";
+            } else {
+                this.inputType = "password";
+            }
+		},
+		inputchange () {
+		this.showClear  = 	this.user.username === '' ? false:true;
+		},
+        clearInput() {
+            // alert(1)
+			this.user.username = "";
+			this.showClear  = false;
+        },
+        zhuFun: function() {
+            this.$router.push({
+                path: "register",
+                name: "register"
+            });
+        },
+        forgetFun: function() {
+            this.$router.push({
+                path: "forget_password",
+                name: "forget_password"
+            });
+        }
+    }
+};
+</script>
+<style scoped   lang='less'  >
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/main.css");
+
+.vux-pop-out-enter-active,
+  .vux-pop-out-leave-active,
+  .vux-pop-in-enter-active,
+  .vux-pop-in-leave-active ,
+.lightSpeedIn ,
+.lightSpeedOut 
+	{
+    will-change: transform;
+    transition: all .5s;
+	// height: 100%;
+	width: 100%;
+	animation-duration: .8s;
+    top: 0;
+    position: absolute;
+    backface-visibility: hidden;
+    perspective: 1000;
+  }
+
+// 平滑  滑动
+//   .vux-pop-out-enter {
+//     opacity: 0;
+//     transform: translate3d(-100%, 0, 0);
+//   }
+
+//   .vux-pop-out-leave-active {
+//     opacity: 0;
+//     transform: translate3d(100%, 0, 0);
+//   }
+
+//   .vux-pop-in-enter {
+//     opacity: 0;
+//     transform: translate3d(100%, 0, 0);
+//   }
+
+//   .vux-pop-in-leave-active {
+//     opacity: 0;
+//     transform: translate3d(-100%, 0, 0);
+//   }
+
+
+.lightSpeedIn {
+    animation-name: lightSpeedIn;
+    animation-timing-function: ease-out
+}
+.lightSpeedOut {
+    animation-name: lightSpeedOut;
+	// animation-timing-function: ease-in
+	  animation-timing-function: ease-out
+}
+
+
+
+@keyframes lightSpeedIn {
+    0% {
+        transform: translate3d(100%,0,0) skewX(-30deg);
+        opacity: 1
+    }
+
+    60% {
+        transform: skewX(20deg);
+        opacity: 1
+    }
+
+    80% {
+        transform: skewX(-5deg);
+        opacity: 1
+    }
+
+    to {
+        transform: none;
+        opacity: 1
+    }
+}
+
+
+
+@keyframes lightSpeedOut {
+    0% {
+        opacity: 1
+    }
+
+    to {
+        transform: translate3d(-100%,0,0) skewX(30deg);
+        opacity: 0
+    }
+}
+
+
+</style>

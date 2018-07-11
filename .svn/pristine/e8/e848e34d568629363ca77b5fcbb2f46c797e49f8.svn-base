@@ -1,0 +1,7 @@
+
+export default [ {
+  path: '/wechat/subpage/bannk_ud_photos',
+  name: 'xxx',
+  component: resolve => require(['@/components/wechat/subpage/bannk_ud_photos'], resolve)
+}]
+

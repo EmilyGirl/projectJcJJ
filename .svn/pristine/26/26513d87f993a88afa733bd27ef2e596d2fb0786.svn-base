@@ -1,0 +1,85 @@
+<template>
+	<div class="zeek" id="zeek">
+		<ul class="wrapped_title">
+			<li v-for="(wrap,index) in wrapped" :class="{'wrap_li':selected==index}" @click="switchover(index)">{{wrap.title}}</li>
+			<li class="clear"></li>
+		</ul>
+		<div class="wrapped_box">
+			<div class="zeek_rewards" v-if="selected == 0">
+                0
+			</div>
+		    <div class="zeek_rewards" v-if="selected == 1">
+
+			 <div class="huankuan">项目总额为150000.00，如满标日为05月10日，还款方式为到期
+一次性还本付息预计回款时间和回款本息参考如下：</div>
+             <div class="repay">
+                 <div class="repayLine"></div>
+                 <div class="repayTitle">第一期</div>
+                 <div class="clear"></div>
+                   <div class="repay1 repayTop">预计还款时间：<span>{{info.time}}</span>  </div>
+                   <div class="repay1">预计还款本息：<span>{{info.money}}</span>   元</div>
+                   <div class="repay1">还款状态：<span>{{info.status}}</span></div>
+             </div>
+            <div class="repayinfo">
+                注：<br/>
+1、上诉还款计划未借款人不会提前还款的情况；如借款人提前还<br/>
+款，项目提前结束，剩余本金和实际持有有效期的收益会回到您的<br/>
+账户中。<br/>
+2、因计算中存在小数点后两位舍尾，具体以您的投资记录为准。<br/>
+            </div>
+        
+            </div>
+            <div class="zeek_rewards" v-if="selected == 2">
+			2</div>
+            
+			
+		</div>
+		
+	</div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+
+export default {
+  data() {
+    return {
+      selected: 0,
+      wrapped: [
+        {
+          title: "项目介绍"
+        },
+        {
+          title: "还款计划"
+        },
+        {
+          title: "出借计划"
+        }
+      ],
+      info:{
+          time:'2018-02-03',
+          money:'175,663.00',
+          status:'-'
+      }
+    };
+  },
+
+  created: function() {
+    // if (this.$route.query.selected) {
+    //   this.selected = this.$route.query.selected;
+    // }
+  },
+  mounted() {},
+  methods: {
+    // ****************************************
+    switchover: function(index) {
+      this.selected = index;
+    }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/details.less");
+</style>

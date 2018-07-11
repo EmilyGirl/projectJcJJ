@@ -1,0 +1,257 @@
+.my_bankcard{
+	background-color: #FFFFFF;
+	width: 100%;
+	position: absolute;
+	height: 100%;
+	overflow-x: hidden;
+    overflow-y: scroll;
+}
+.my_bankcard *{
+	box-sizing: border-box;
+}
+
+.my_bankcard .tabs{
+	width: 40%;
+	margin: 0 auto;
+	font-size: 1.2rem;
+	line-height: 1.2rem;
+	color: #969696;
+	overflow: hidden;
+}
+.my_bankcard .tabs li{
+	float: left;
+	width: 50%;
+	height: 2.2rem;
+	margin: 1.1rem 0 5.15rem 0;
+	text-align: center;
+	/*background-color: #00A8F1;*/
+}
+
+.my_bankcard .tabs li span{
+	padding-bottom: 1.1rem;
+	border-bottom: .1rem solid #989898;
+}
+
+.my_bankcard .tabs .active span{
+	border-color: #2772FF;
+}
+
+.my_bankcard .cardarea{
+    margin: 1rem 1.5rem 0 1.5rem;
+    color: #333;
+    display: flex;
+    height: 10rem;
+     overflow-x: scroll;
+     overflow-y: hidden;
+
+}
+.my_bankcard .card1{
+	margin:0 auto;
+	width: 34.3rem;
+	height: 10rem;
+	display: inline-block;
+	background-image: linear-gradient(90deg, #BEC4D0 0%, #C9CFDB 100%);
+	border-radius: .4rem;
+	border: 1px solid #E0E0E0;
+	padding: 0 1.5rem;
+	position: relative;
+}
+.my_bankcard .cardarea>div:first-child{
+	margin-left:0 ;
+}
+
+.my_bankcard .card .corner{
+	width: 7.65rem;
+	height: 1.8rem;
+	font-size: 1rem;
+	line-height: 1.8rem;
+	text-align: center;
+	color: #FFFFFF;
+	background-color: rgba(0,0,0,0.10);
+	border-radius: .2rem;
+}
+.my_bankcard .card .mian_msg{
+	text-align: center;
+}
+.my_bankcard .mian_msg .bankLogo{
+	width: 3.2rem;
+	height:3.2rem;
+	/*margin-left: 1.5rem;*/
+	
+}
+.my_bankcard .mian_msg .name{
+	display: flex;
+	align-items: center;
+	  /*border-bottom: 1px solid #E5E5E5;*/
+	padding-top: 1.4rem;
+	color: #FFFFFF;
+}
+.my_bankcard .infowrap{
+	/*flex: 1;
+	height: 6.3rem;
+	display: flex;
+   flex-direction:column;
+   justify-content: space-around;*/
+   font-size: 1.4rem;
+   box-sizing: border-box;
+   padding: .8rem .8rem;
+}
+
+.my_bankcard .cardchange{
+	display: flex;
+	justify-content: space-between;
+}
+
+
+.my_bankcard .mian_msg .cardNO{
+	width: 100%;
+	height: 2.8rem;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	font-size: 1rem;
+	line-height: 2.8rem;
+	color: #606060;
+	background-image: linear-gradient(90deg, #B4BBC9 0%, #C0C6D3 100%);
+	border-radius: 0 0 .4rem .4rem;
+	color: #fff;
+}
+
+
+
+.my_bankcard .cardNOtips{
+	/*background: #3291FF;
+	border-radius: 100px;*/
+	color: #fff;
+	border-radius: 100px;
+	padding-left: 1.2rem;
+	/*margin-right: 1rem;*/
+}
+
+
+
+
+.my_bankcard .change{
+	font-size: 1.3rem;
+	color: #606060;
+	
+}
+
+
+
+
+.my_bankcard .bankAccount{
+	font-size: 1.2rem;
+	margin-left: .8rem;
+}
+
+
+
+.my_bankcard .smrz{
+	margin-top: 2.3rem;
+	text-align: center;
+}
+.my_bankcard .smrz span{
+	font-size: 1.1rem;
+	color: #969696;
+	margin-right: 2.3rem;
+}
+
+.my_bankcard .smrz span img{
+	width: 1.55rem;
+	margin-right: .5rem;
+}
+.my_bankcard .bkBtn{
+	width: 34.3rem;
+	height: 4rem;
+	display: block;
+	margin: 2rem auto 2.4rem auto;
+	background-color: #F7F7F8;
+	font-size: 1.6rem;
+	border: .1rem solid #E0E0E0;
+	border-radius: .2rem;
+}
+
+.my_bankcard .bkBtnDis{
+	color: #999999;
+}
+
+.my_bankcard .description{
+	padding: 0 1.5rem 2.55rem 1.5rem;
+	line-height: 2.6rem;
+	color: #999999;
+}
+.my_bankcard .description >p{
+	border-left: .2rem solid #C8C8C8;
+	height: 1.2rem;
+	line-height: 1.2rem;
+	font-size: 1.2rem;
+	padding-left: .6rem;
+	margin-bottom: 1rem;
+}
+
+.my_bankcard .description >p .more{
+	float: right;
+}
+
+.my_bankcard .description >p .moreImg{
+	width: .6rem;
+	margin-left: .6rem;
+}
+
+.my_bankcard .circle{
+	width: 100%;
+	height: 1.2rem;
+	font-family: PingFang-SC-Medium;
+	font-size: 1.2rem;
+	color: #999999;
+	letter-spacing: 0;
+	line-height: 1.8rem;
+}  
+.my_bankcard .circle li{ 
+	
+}  
+.my_bankcard .desMar{
+	margin-top: 2rem;
+	font-size: 1.2rem;
+}
+
+.my_bankcard .description .href,.description a{
+	/*text-decoration: underline;*/
+	color: #2772FF;
+}
+
+.my_bankcard .v_foot{
+	position: absolute;
+	bottom: 2rem;
+}
+
+.my_bankcard .welfare-close {
+    background: rgba(0, 0, 0, 0.6);
+    font-size: 1.5rem;
+    color: #fff;
+    text-align: center;
+    line-height: 2rem;
+    border-radius: 2rem;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -o-transform: translate(-50%, -50%);
+    padding: 1.5rem;
+  }
+  
+.my_bankcard .fade-enter-active,
+.my_bankcard .fade-leave-active {
+    transition: opacity .3s;
+  }
+  
+.my_bankcard .fade-enter,
+.my_bankcard .fade-leave-to
+  /* .fade-leave-active in below version 2.1.8 */
+  
+  {
+    opacity: 0
+  }

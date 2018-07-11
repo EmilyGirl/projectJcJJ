@@ -1,0 +1,200 @@
+<template>
+	<div class="success">
+		<img v-if="msg=='成功'"  class="dispose_img" src="../../../assets/img/wechat/mine/chulizhong.png" alt="">
+    <img v-else class="dispose_img" src="../../../assets/img/wechat/mine/caozuoshibai.png" alt="">
+    <div v-if="msg=='成功'">
+    <div class="chuli">{{text}}</div>
+    <div class="information">出借订单已正在处理中，请稍后在“我的页面”查询出借记录</div>
+    </div>
+   <div v-else>
+     <div class="infomation" style="color:#FF5240;font-size:1.4rem;margin-bottom:5rem ">{{msg}}</div>
+   </div>
+		<!-- <div class="success_btn clearfix">
+			<span class="fl btn-left" @click="kanFun()">查看详情</span>
+			<span class="fr btn-right" @click="chuFun()">继续出借</span>
+		</div>
+    <div class="line"></div>
+		 <div class="question">若有任何疑问，请及时联系我们</div>
+    <div class="question1">
+      <img class="questionImg" src="../../../assets/img/wechat/mine/icon_phone.png" alt="">
+     <a :href='"tel:"+tel'> <span>{{tel}}</span></a>
+    </div>
+    <div class="question2">工作日9：00-21：00</div> -->
+    <Button  v-if="msg=='成功'" :message='message' :disabled='disabled'  @change="chufun()"> </Button>
+    <Button  v-else :message='message1' :disabled='disabled'  @change="chufun()"> </Button>
+    <div class="question">
+      <!-- <img src="../../../assets/img/wechat/mine/jiujiangdibu.png" alt=""> -->
+      <v-footer :style="{position: 'fixed',bottom: 0,left:0}"/>
+    </div>
+　　    </div>
+</template>
+
+<script>
+import { formatDate } from "../../../assets/js/wechat/date.js";
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import footer from "@/components/wechat/public/Footer";
+export default {
+  components: {
+    "v-footer": footer
+  },
+  data() {
+    return {
+      message: "完成",
+      disabled: false,
+      items: [],
+      baseEarnings: "",
+      lcqx: "",
+      fxfs: "",
+      text: "出借处理中",
+      message1: "返回",
+      msg: "成功",
+      jiangLiEarnings: "",
+      annualEarnings: "",
+      tel: "400-005-3300",
+      type: "error"
+    };
+  },
+  created: function() {
+    this.type = "5";
+    this.isApp(this.type, false);
+    if (this.$route.query.msg) {
+      this.msg = this.$route.query.msg;
+    }
+  },
+  methods: {
+    chuFun() {
+      this.type = "51";
+      var router = "product";
+      this.isApp(this.type, true, router);
+    },
+    kanFun() {
+      this.type = "50";
+      var router = "zeek_rewards";
+      this.isApp(this.type, true, router);
+
+      //this.$router.push({ name: "zeek_rewards", query: { selected: 1 } });
+    },
+    isApp(type, f, router) {
+      var ua = window.navigator.userAgent.toLowerCase(); //判断是不是微信端
+      var u = navigator.userAgent;
+      var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1; //android终端
+      var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+      var isWeixin =
+        ua.match(/MicroMessenger/i) == "micromessenger" ? true : false;
+      try {
+        //浏览器调试
+        if (isIOS && !isWeixin) {
+          jumpPageByType(type);
+        } else if (isAndroid && !isWeixin) {
+          webReturn.jumpPageByType(type);
+        } else {
+          if (f) {
+            if (type == "50") {
+              this.$router.push({ path: router, query: { selected: 1 } });
+            } else if (type == "51") {
+              if (this.msg == "成功") {
+                this.$router.push({ path: router });
+              } else {
+                this.$router.push({ path: "/wechat/subpage/go_invest" });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        if (f) {
+          if (type == "50") {
+            this.$router.push({ path: router, query: { selected: 1 } });
+          } else if (type == "51") {
+            if (this.msg == "成功") {
+              this.$router.push({ path: router });
+            } else {
+              this.$router.push({ path: "/wechat/subpage/go_invest" });
+            }
+            // this.$router.push({ path: router });
+          }
+        }
+      }
+    }
+    /*isApp1(type, f) {
+      var ua = window.navigator.userAgent.toLowerCase(); //判断是不是微信端
+      var u = navigator.userAgent;
+      var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1; //android终端
+      var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+      var isWeixin =
+        ua.match(/MicroMessenger/i) == "micromessenger" ? true : false;
+      try {
+        //浏览器调试
+        if (isIOS && !isWeixin) {
+          jumpPageByType(type);
+        } else if (isAndroid && !isWeixin) {
+          webReturn.jumpPageByType(type);
+        } else {
+          if (f) {
+            this.$router.push({ name: "zeek_rewards", query: { selected: 1 } });
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        if (f) {
+          this.$router.push({ name: "zeek_rewards", query: { selected: 1 } });
+        }
+      }
+    }*/
+    //			demo() {
+    //				var ua = window.navigator.userAgent.toLowerCase(); //判断是不是微信端
+    //				var u = navigator.userAgent;
+    //				var isAndroid = u.indexOf("Android") > -1 || u.indexOf("Adr") > -1; //android终端
+    //				var isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+    //				var isWeixin = ua.match(/MicroMessenger/i) == "micromessenger" ? true : false;
+    //				try {
+    //					if("修改交易密码") {
+    //						//无处理中页面
+    //						if(isIOS && !isWeixin) {
+    //							jumpPageByType("6");
+    //							throw "IOS Browser simulation trad";
+    //						} else if(isAndroid && !isWeixin) {
+    //							webReturn.jumpPageByType("7");
+    //							throw "Android Browser simulation trad";
+    //						} else {
+    //							window.location.href="指定页面";
+    //						}
+    //					} else if("修改银行手机") {
+    //						//无处理中页面
+    //						if(isIOS && !isWeixin) {
+    //							jumpPageByType("6");
+    //							throw "IOS Browser simulation Phone";
+    //						} else if(isAndroid && !isWeixin) {
+    //							webReturn.jumpPageByType("7");
+    //							throw "Android Browser simulation Phone";
+    //						} else {
+    //							window.location.href="指定页面";
+    //						}
+    //					} else if("出借") {
+    //						//有处理中页面
+    //						window.location.href="指定页面";
+    //					} else if("……") {
+    //						//有处理中页面
+    //						window.location.href="指定页面";
+    //					}
+    //
+    //				} catch(e) {
+    //					console.log(e);
+    //					if("修改交易密码") {
+    //						//无处理中页面
+    //						window.location.href="指定页面";
+    //					} else if("修改银行手机") {
+    //						//无处理中页面
+    //						window.location.href="指定页面";
+    //					}
+    //
+    //				}
+    //			},
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/success.less");
+</style>

@@ -1,0 +1,142 @@
+<template>
+	<div class="bind-bank">
+		<div class="fu-mask" v-if="fuclose">
+			<div class="fu-content">
+				<ul class="mode">
+					<li v-for="(banklist, bank) in banklists" @click="bankClickFun(banklist)">
+						<img class="fl balance" :src="banklist.logoUri" />
+						<div class="fl fu-middle">
+							<p class="yu-common">{{ banklist.bankName }}</p>
+							<p class="money-common">{{ banklist.bankNote }}</p>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="bind-top bind-common clearfix">
+			<!-- <div class="fl">绑定银行卡</div> -->
+			<div class="fr" @click="xiane">支持银行</div> 
+			<!-- <div class="fr" >支持银行</div> -->
+		</div>
+		<form @submit.prevent="submit">
+			<div class="bind-middle">
+				<ul>
+					<li class="clearfix">
+						<div class="left-common fl">姓名</div>
+						<div class="right-common fl"><input type="" name="" id="" v-model="user.cust_nm"  maxlength="10"  value="" placeholder="请输入开户姓名" /></div>
+					</li>
+					<li class="clearfix">
+						<div class="left-common fl">身份证</div>
+						<div class="right-common fl"><input type="" name="" id="" v-model="user.certif_id" value="" maxlength="18" placeholder="请输入身份证号" /></div>
+					</li>
+				</ul>
+				<div class="bind-front">
+					<!-- <img src="../../../assets/img/wechat/product/tip.png" style="margin-right: 1rem;"/> -->
+					根据国家监管要求，集财理财已接入恒丰资金存管系统。用户实名认证，绑定银行卡，出借，充值，提现，转让前需开通银行存管账户。
+				</div>
+			</div>
+		</form>
+
+
+		<div class="ment1"><!--<img v-if="lock" @click="lock=!lock,unlock=!unlock" src="../../../assets/img/wechat/product/lock.png"/><img v-if="unlock" @click="unlock=!unlock,lock=!lock" src="../../../assets/img/wechat/product/unlock.png"/>阅读并同意 <router-link to="">《XXX账户服务三方协议》</router-link> 和 <router-link to="">《用户授权协议》</router-link>--></div>
+		
+
+		<button class="btnBottom btnBottom1" type="submit"        @click="submit()">下一步</button>
+		<!-- <img src="../../../assets/img/wechat/mine/bank_icon.png" style="position: absolute;bottom: 3.3rem;width: 80%;left: 50%;margin-left: -40%;"/> -->
+	<v-footer	:style="{paddingTop:'25rem'}"/>
+	</div>
+</template>
+
+<script>
+import footer from "@/components/wechat/public/Footer";
+	import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+	// import {usernameKey,authKey,authName,usernameName} from '@/config/config.js'
+	import {createForm} from '@/config/common.js'
+	export default {
+		  components: {
+			'v-footer':footer
+		},
+		name: 'hello',
+		data: function() {
+			return {
+				message: '',
+				lcqx: '',
+				lock: true,
+				unlock: false,
+				close: false,
+				set: false,
+				user: {
+					cust_nm: '',
+					certif_id: '',
+				},
+				banklists: [],
+				fuclose: false,
+				bankname: '请选择银行',
+				validatecode: '',
+				requestid: '',
+				codeTitle: '获取验证码',
+				findYzm: false,
+				countDown: '60s后重新获取',
+				payTitle: '',
+				securityBtn: true,
+				isPay: false,
+				second: 60,
+				preventTime: true,
+				countBool: true,
+			}
+		},
+		// created: function () {
+		// 	this.user.phone = this.getxxx();
+		// },
+		methods: {
+			// getxxx: function() {
+			// 	if(this.$getCookie(usernameName)) {
+			// 		return this.$decryptByDES(this.$getCookie(usernameName),this.$uncompile(usernameKey))
+			// 	}
+			// },
+			submit: function () {
+				var _this = this;
+				if (_this.user.idHolder == '') {
+					_this.$Toast('请输入持卡人姓名')
+				} else if (!/^[\u4e00-\u9fa5]+$/.test(_this.user.cust_nm)) {
+			
+					_this.$Toast('请输真实姓名')
+				} else if (_this.user.idCard == '') {
+		
+						_this.$Toast('请输入身份证号')
+				} else if (!/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(_this.user.certif_id)) {
+		
+						_this.$Toast('请输入有效的身份证号')
+				} else {
+					var formData = JSON.stringify(this.user);
+					_this.$http.post('/Product/User/bindCardJiuJiang', {
+						parameters: formData
+					})
+					.then(function(res) {
+						if(res.data.end == 'ok') {
+							// console.log(res.data.url)
+								createForm(res.data.data,res.data.url)
+
+
+						} else {
+							_this.$Toast(res.data.message)	
+						}
+						
+					})
+					.catch(function(err) {
+						console.log(err)
+					})
+				}
+			},
+			xiane(){
+				// @click="xiane"
+				this.$router.push({path:'/app_terminal/quota'});
+			},
+		}
+	}
+</script>
+
+<style scoped lang='less'>
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	@import url("../../../assets/css/wechat/bind_bank.less");
+</style>

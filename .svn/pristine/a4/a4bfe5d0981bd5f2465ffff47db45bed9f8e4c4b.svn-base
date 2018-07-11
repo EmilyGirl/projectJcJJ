@@ -1,0 +1,263 @@
+<template>
+	<div class="my_bankcard">
+		<div class="cardarea">
+			<div v-for="(list,index) in lists" class="card1">
+				<div class="mian_msg">
+					<div class="name">
+						<img :src="list.bankURI" class="bankLogo" />
+						<div class="infowrap">
+							<span>{{list.bankName}}</span>
+							<!--<span v-if='list.bankCardstatus == 0' class="change" @click='changCard(list)'>变更</span>
+								<span v-if='list.bankCardstatus == 2' class="change">换卡审核中</span>-->
+							<span class="bankAccount">{{list.bankAccount}}</span>
+						</div>
+					</div>
+					<div class="cardNO">
+						<span class="cardNOtips">卡片限额：</span><span>{{list.AuthNeedbankNote}}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<button class="bkBtn" v-if='bankCardstatus == 0' @click="inputBlock">申请解绑</button>
+		<button class="bkBtn bkBtnDis" v-if='bankCardstatus == 3'>解绑审核中</button>
+		<button class="bkBtn bkBtnDis" v-if='bankCardstatus == 4' @click="JieBang">解绑银行卡</button>
+		<div class="description" :class="{'desMar':obj.isHistory==0}">
+			<p>银行卡说明
+				<router-link to='/app_terminal/quota' class='more'>支持银行<img src="../../../assets/img/wechat/mine/right.png" class='moreImg' /> </router-link>
+			</p>
+			<ul class="circle">
+				<li>
+					1、目前鉴于用户资金安全考虑采用同卡进出原则，每个用户只能 绑定一张银行卡。
+				</li>
+				<li>
+					2、更换银行卡必须满足当前账户余额为0且无待还款标的。
+				</li>
+				<li>
+					3、更换银行卡说明：点击更换按钮，进入更换申请页面，提交相 关资料后将会在3-5个工作日完成审核，审核通过后即可绑定新卡。
+				</li>
+				<li>
+					4、各银行对银行卡限额有不同的限定，可点击查看支持银行。
+					<!--<a href="javascript:void(0)" @click="xiane">支持银行</a>。-->
+				</li>
+			</ul>
+		</div>
+		<!-- 提示弹框 -->
+		<transition name="fade">
+			<div class="welfare-close" v-if="close">{{ message }} </div>
+		</transition>
+		<!-- 弹窗 -->
+		<div class="shade" v-if="msgSwitch">
+			<div class="alerts">
+				<div class="msg_title">提示</div>
+				<div class="msg_body">{{shadeContent}}</div>
+				<div class="msg_func">
+					<button @click="()=>{msgSwitch=false}"> 确定</button>
+				</div>
+			</div>
+		</div>
+		<!-- 弹窗 -->
+		<vue-input :inputShow='atcode' @closeInput="closeInput" @inputEnd="inputEnd" @findCode="findCode"></vue-input>
+		<!---->
+		<v-footer class="v_foot" bgColor="'#fff'"></v-footer>
+	</div>
+
+</template>
+<script>
+	import { createForm } from '@/config/common.js'
+	import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+	import footer from "@/components/wechat/public/Footer";
+	import vueInput from "../public/vueInput";
+	export default {
+		name: "my_bankcard",
+		data() {
+			return {
+				shadeContent: '',
+				msgSwitch: false,
+				close: false,
+				selected: true,
+				card: "card",
+				card1: "card1",
+				message: "为保证资金安全，仅支持绑定1张银行卡",
+				lists: [],
+				obj: {}, //绑卡新老用户区分
+				tel: '',
+				jbBtn: '申请解绑',
+				bankCardstatus: '',
+				atcode: false,
+			};
+		},
+		components: {
+			'v-footer': footer,
+			vueInput,
+		},
+		created() {
+			var _this = this;
+			this.loadData();
+
+		},
+		methods: {
+			loadData: function() {
+				var _this = this;
+				_this.$http
+					.post("/Product/User/showMyAccountNew", {
+						parameters: "{}"
+					})
+					.then(function(res) {
+						if(res.data.end == "ok") {
+							_this.lists = res.data.list;
+							_this.obj = res.data.obj;
+						}else{
+							_this.$Toast(res.data.message);
+						}
+					})
+					.catch(function(err) {
+						console.log(err);
+					});
+					
+				_this.$http
+					.post("Product/User/isActivate", {
+						parameters: "{}"
+					})
+					.then(function(res) {
+						if(res.data.end == "ok") {
+							_this.bankCardstatus = res.data.data.code;
+						}else{
+							_this.$Toast(res.data.message);
+						}
+					})
+					.catch(function(err) {
+						console.log(err);
+					});
+			},
+			changCard: function() {
+				//			 	alert('变更银行卡')
+				var _this = this;
+				_this.$http
+					.post("/Product/User/updataAccount", {
+						parameters: "{}"
+					})
+					.then(function(res) {
+						if(res.data.end == "ok") {
+							createForm(res.data.data, res.data.url)
+						} else {
+							_this.msgSwitch = true
+							_this.shadeContent = res.data.message;
+						}
+					})
+					.catch(function(err) {
+						console.log(err);
+					});
+
+			},
+			xiane() {
+				// @click="xiane"
+				this.$router.push({
+					path: '/app_terminal/quota'
+				});
+			},
+			inputBlock() {
+				this.atcode = true;
+
+			},
+
+			closeInput() {
+				this.atcode = false;
+			},
+			inputEnd(val) {
+				this.atcode = false;
+				alert('我拿到值了:' + val);
+				var _this = this;
+				_this.$http.post("Product/verifyUnBindSendYzm", {
+						parameters: '{"type":"9","yzm":"'+val+'"}'
+					})
+					.then(function(res) {
+						if(res.data.end == "ok") {
+							_this.$Toast(res.data.message);
+						} else {
+							_this.$Toast(res.data.message);
+						}
+					})
+					.catch(function(err) {
+						console.log(err);
+					});
+			},
+			findCode() {
+				alert("我接到了发送命令");
+				var _this = this;
+				_this.$http.post("/Product/sendUnBindSendYzm", {
+						parameters: '{"type":"9"}'
+					})
+					.then(function(res) {
+						if(res.data.end == "ok") {
+							_this.$Toast(res.data.message);
+						} else {
+							_this.$Toast(res.data.message);
+						}
+					})
+					.catch(function(err) {
+						console.log(err);
+					});
+			},
+		}
+	};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	@import url("../../../assets/css/wechat/my_bankcard.css");
+	.my_bankcard .shade {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		top: 0;
+		background-color: rgba(0, 0, 0, .6);
+		z-index: 10000;
+	}
+	
+	.my_bankcard .alerts {
+		font-size: 1.4rem;
+		line-height: 2rem;
+		text-align: center;
+		position: absolute;
+		top: 35%;
+		width: 76%;
+		left: 12%;
+		background-color: #FFFFFF;
+		padding: 2.1rem 5rem 2.6rem 5rem;
+		border-radius: .8rem;
+	}
+	
+	.my_bankcard .alerts .msg_title {
+		font-size: 1.6rem;
+		font-weight: bold;
+	}
+	
+	.my_bankcard .alerts .msg_body {
+		margin: 1.5rem 0 3.5rem 0;
+		color: #606060;
+	}
+	
+	.my_bankcard .alerts .msg_func {
+		display: flex;
+		justify-content: space-around;
+	}
+	
+	.my_bankcard .alerts .msg_func button {
+		font-size: 1.4rem;
+		padding: .6rem 1rem;
+		border-radius: .5rem;
+		background-color: #2772FF;
+		color: #FFFFFF;
+	}
+	
+	.my_bankcard .alerts .msg_func button:first-of-type {
+		/*background-color: #989898;*/
+		background-color: #2772FF;
+		font-size: 1.8rem;
+		padding: 1rem;
+		width: 100%;
+		font-weight: 100;
+		border-radius: 3rem;
+	}
+</style>

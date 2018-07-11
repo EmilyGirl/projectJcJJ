@@ -1,0 +1,110 @@
+.mine{
+    font-size: 1.6rem;
+    .noLog_banner{
+        width: 100%;
+        height: 16.5rem;
+        background: url(../../img/wechat/mineJ/mine_bg.png) no-repeat;
+        box-shadow: 0 8px 8px 0px rgba(255,96,96,.3);
+        background-size: 100% 100%;
+        text-align: center;
+        .reg_log{
+            width: 12rem;
+            height: 3.2rem;
+            background-image: linear-gradient(90deg, #FFD7D7 0%, #FFFFFF 100%);
+            border-radius: 10rem;
+            font-size: 1.4rem;
+            color: #FF5240;
+            margin-top: 11.2rem;
+        }
+    }
+    
+    .log_banner{
+            width: 100%;
+            height: 16.5rem;
+            background-image: linear-gradient(0deg, #FF845B 3%, #FF4E4E 100%);
+            box-shadow: 0 8px 8px 0px rgba(255,96,96,.3);
+            font-size: 1.2rem;
+            line-height: normal;
+            color: rgba(255,255,255,.5);
+            .top{
+                height: 4.4rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                .user_header{
+                    width: 3.6rem;
+                    
+                }
+                .set_btns{
+                    width: 2.4rem;
+                }
+            }
+            .center{
+                width: 100%;
+                //height: 11.3rem;
+                display: flex;
+                justify-content: center;
+                align-content: center;
+                flex-wrap: wrap;
+                margin-bottom: 1.4rem;
+                p{
+                    width: 100%;
+                    text-align: center;
+                }
+                .all_money{
+                    font-size: 2.8rem;
+                    color: #FFFFFF;
+                }
+            }
+            .bot{
+                display: flex;
+                justify-content: space-around;
+                div{
+                    text-align: center;
+                }
+                .interval{
+                    font-size: 1.8rem;
+                    margin-top: 1rem;
+                    font-weight: 100;
+                }
+                .momey{
+                    font-size: 2rem;
+                    color: #FFFFFF;
+                }
+            }
+        }
+        .block2{
+            font-size: 1.2rem;
+            .kyye{
+                font-size: 1.2rem;
+                line-height: normal;
+            }
+            .keyong{
+                color: #FF5050;
+                font-size: 1.8rem;
+                line-height: normal;
+            }
+        }
+        .block3{
+            display: flex;
+            justify-content: space-between;
+            padding: 2.1rem 2.6rem 1.4rem 2.6rem;
+            font-size: 1.2rem;
+            >div{
+                text-align: center;
+                color: #202020;
+                >img{
+                    width: 2.6rem;
+                    margin-bottom: .8rem;
+                }
+            }
+            
+        }
+        .ml_block_list{
+            .jqqd{
+                font-size: 1.4rem;
+                color: #A0A0A0;
+                margin-left: 2rem;
+            }
+        }
+}

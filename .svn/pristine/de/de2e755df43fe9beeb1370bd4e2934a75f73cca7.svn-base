@@ -1,0 +1,308 @@
+.wx_recharge{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	overflow-x: hidden;
+}
+
+/*注册*/
+.wx_recharge .withdrawBank{
+	/* width: 100%; */
+	height: 7rem;
+	background: #fff;
+	margin: 1rem 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 3.7rem;
+}
+.wx_recharge .withdrawcunguan{
+	font-size:1.4rem;
+	color: #202020;
+	font-weight:bold;
+	display:inline-block;
+	margin-bottom:0.8rem;
+}
+.wx_recharge .withdrawbank1{
+	width: 4rem;
+	height: 4rem;
+	margin-right:.5rem;
+}
+.withdrawtext{
+	font-size: 1.2rem;
+	color: #202020;
+}
+	.wx_recharge .normal{
+		color: #999999;
+		margin-top:1.6rem;
+		font-size: 1.2rem;
+	}
+	
+	
+	.wx_recharge .input-list {
+		background: #fff;
+		margin-top: 1.3rem;
+		padding: 0 1.7rem;
+	}
+	
+	
+	
+	.wx_recharge .icommon label {
+		font-size: 1.5rem;
+		display: inline-block;
+		width: 6.5rem;
+		-webkit-user-select: none;
+		vertical-align: middle;
+		
+	}
+	
+	.wx_recharge .unit{
+		font-size: 1.5rem;
+		vertical-align: middle;
+	}
+	
+	
+	.wx_recharge .icommon .bankImg{
+		width: 3.2rem;
+		height: 3.2rem;
+		border-radius: 2.75rem;
+		overflow: hidden;
+		-webkit-user-select: none;
+		margin: 1.5rem 0 0 1.5rem;
+	}
+	.wx_recharge .bankImg img{
+		height: 100%;
+		-webkit-user-select: none;
+	}
+	
+	.wx_recharge .icommon .hide,
+	.wx_recharge .icommon .show {
+		margin: 0 0 0 6.5rem;
+	}
+	
+	.wx_recharge .icommon .show {
+		margin-left: 3.5rem;
+	}
+	
+	.wx_recharge .icommon input {
+		font-size: 1.4rem;
+		padding: 1.5rem 0;
+		/*width: 17rem;*/
+	}
+	
+	.wx_recharge .icommon .password {
+		/*width: 17rem;*/
+	}
+	
+	.wx_recharge .icommon .recharge_input{
+		width: 24rem;
+	}
+	
+	.wx_recharge .fr {
+		/*float: inherit;*/
+		/*font-size: 1.4rem;*/
+		vertical-align: middle;
+		color: #2772FF;
+	}
+	
+	.wx_recharge .getMa {
+		width: 9rem;
+		height: 3rem;
+		border-radius: .5rem;
+		border: 0;
+		outline: none;
+		color: #fff;
+		font-size: 1.5rem;
+		background: #2772FF;
+		vertical-align: middle;
+	}
+	
+	
+	.wx_recharge .normal p{
+		margin-left:1.8rem;
+	}
+	.wx_recharge .normal:last-child{
+		
+	}
+	.wx_recharge .bkTitle{
+		display:inline-block;
+		font-size: 1.5rem;
+		color: #000000;
+
+		/*margin-right: 15.6rem;*/
+	}
+	.wx_recharge .czrz{
+		margin: 1.5rem 0 0.8rem 0;
+		/*display:inline-block;*/
+		font-size: 1.5rem;
+		color: #000000;
+        padding:1rem 1.8rem ;	
+	}
+	.wx_recharge .czrz p{
+		display: inline-block;
+         
+	}
+	.wx_recharge .czrz p .more_right{
+		display: inline-block;
+        width: 0.6rem;
+        height: 1rem;
+			background:url('../../img/wechat/mine/more_right.png')no-repeat;
+			background-size: 100%;
+			margin-left:0.6rem;
+	}
+	.wx_recharge .light{
+		color: #2772FF;
+	}
+	
+	.wx_recharge .tips{
+		color:red;
+	}
+	
+	.wx_recharge .boolBtn{
+		width: 92%;
+		height: 4.5rem;
+		display: block;
+		margin: 2rem auto 1.5rem;
+		border-radius: 0.4rem;
+		font-size: 1.6rem;
+		background: #ccc;
+	
+		
+	}
+	
+	.wx_recharge .registerBtn,
+	.wx_recharge .loginBtn {
+		width: 92%;
+		height: 4.5rem;
+		display: block;
+		margin: 2rem auto 1.5rem;
+		border-radius: 0.4rem;
+		font-size: 1.6rem;
+		color: #fff;
+		background: #2772FF;
+	}
+	
+	.wx_recharge .registerBtn:active,
+	.wx_recharge .loginBtn:active {
+		width: 92%;
+		height: 4.5rem;
+		display: block;
+		margin: 2rem auto 1.5rem;
+		border-radius: 0.4rem;
+		font-size: 1.6rem;
+		color: #fff;
+		background: #555555;
+	}
+	
+	.wx_recharge .loginBtn {
+		opacity: 1;
+	}
+	
+	.wx_recharge .ser-res {
+		text-align: center;
+		font-size: 1.2rem;
+		color: #ccc;
+	}
+	
+	.wx_recharge .ser-res a {
+		color: #629DFC;
+	}
+	
+	.wx_recharge .login-bottom {
+		width: 92%;
+		margin: 0 auto;
+	}
+	
+	.wx_recharge .login-bottom p {
+		color: #FB5C04;
+		font-size: 1.2rem;
+	}
+	/*渐变*/
+	
+	.wx_recharge .welfare-close {
+		/*height:auto;*/
+		
+		background: rgba(0, 0, 0, 0.6);
+		font-size: 1.5rem;
+		color: #fff;
+		text-align: center;
+		line-height: 3rem;
+		border-radius: 2.2rem;
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		-webkit-transform: translate(-50%, -50%);
+		-moz-transform: translate(-50%, -50%);
+		-o-transform: translate(-50%, -50%);
+		padding:0.8rem 1rem;
+		z-index: 100000;
+	}
+	
+	.wx_recharge .fade-enter-active,
+	.wx_recharge .fade-leave-active {
+		transition: opacity .3s;
+	}
+	
+	.wx_recharge .fade-enter,
+	.wx_recharge .fade-leave-to
+	/* .fade-leave-active in below version 2.1.8 */
+	
+	{
+		opacity: 0
+	}
+	
+
+
+/*wx_recharge*/
+
+.wx_recharge .czinput-list{
+	    padding: 1.8rem 1.2rem;
+	        background: #fff;
+	            vertical-align: middle;
+}
+.wx_recharge .czinput-list .czText{
+	    /*margin-left:1.3rem;*/
+	       margin:1.5rem 0;
+	       width: 80%;
+	    
+	    
+}
+.wx_recharge .czinput-list .czText p{
+	font-size: 1.2rem;
+	color: #999999;
+	line-height: 1.2rem;
+	 margin-bottom: 0.8rem;
+}
+.wx_recharge .czinput-list .czText p:first-child {
+	  font-size: 1.4rem;
+	 
+	  color: #000;
+}
+
+
+.wx_recharge .footTitle {
+	margin-top:0.9rem;
+	margin-left: 1.8rem;
+}
+.wx_recharge .footTitle p{font-size: 1.2rem;color:#999999; margin-bottom: 1.2rem;}
+.wx_recharge .reminder{
+	margin: 16.7rem auto 2rem;
+	text-align: center;
+	font-size: 1.2rem;
+	color: #999999;
+}
+ .wx_recharge .reminder .reminder_phone{
+ 	margin:0.8rem 0;
+ 	color: #2772FF;
+ 	font-size: 1.8rem;
+ }
+ .wx_recharge .reminder .reminder_phone .reminder_phoneico{
+  	    display: inline-block;
+  	width: 2rem;
+  	height:2rem;
+  	background:url('../../img/wechat/mine/reminder_phone.png')no-repeat;
+  	background-size:100%;
+  	    margin-right: 1.2rem;
+  	    vertical-align: text-top;
+  }

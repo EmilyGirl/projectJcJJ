@@ -1,0 +1,661 @@
+<template>
+	<div class="product-detail">
+
+     <transition 
+    enter-active-class="slideInDown"
+  leave-active-class="slideOutUp"
+   >
+  <div class="page1"  @touchstart="touchstartLi" @touchmove = 'touchmoveLi("page1",$event)'   @touchend ="touchendLi"   v-show= 'page1'>
+		<div class="bang-mask" v-if="bang">
+			<div class="bang-content">
+				<p class="bang-title">提示</p>
+				<p class="bang-common">您尚未绑定银行卡</p>
+				<p class="bang-common">绑定完成后即可充值出借哦~</p>
+				<div class="bangBtn clearfix">
+					<span class="fl firstBtn" @click="bang = !bang">取消</span>
+					<router-link class="fr secondBtn" :to="{path:'./bind_bank',query:{productId:this.$route.query.productId}}">前往绑卡</router-link>
+				</div>
+			</div>
+		</div>
+		<div class="bang-mask" v-if="set">
+			<div class="bang-content">
+				<p class="bang-title">提示</p>
+				<p class="bang-common">您尚未设置交易密码</p>
+				<p class="bang-common">设置完成后即可充值出借哦~</p>
+				<div class="bangBtn clearfix">
+					<span class="fl firstBtn" @click="set = !set">取消</span>
+					<router-link class="fr secondBtn" :to="{path:'./personal_data'}">前往设置</router-link>
+				</div>
+			</div>
+		</div>
+		<div class="product-header">
+			<!-- <div class="title">{{ title }}</div> -->
+			<p class="title-top">预计年化</p>
+			<p class="interest">
+				<span class="yuan">{{ baseEarnings | fixNum }}</span><var class="yuan-mum">%</var>
+				<span class="jiali" v-if="isJiangLi == '1'">+{{ Number(jiangLiEarnings) | fixNum }}<var class="jiali-num">%</var></span>
+			</p>
+		<!-- 	<div class="info-title">
+				<span>多重管理</span>
+				<span>国资背景</span>
+			</div> -->
+	<!-- 		<router-link class="detail" :to="{path: './project_details',query:{productId:this.$route.query.productId}}">项目详情 ></router-link> -->
+      <div class="infoTitle">
+          <div >
+            <p>{{(item.financingAmount)}}</p>
+            <p>项目总金额(元)</p>
+          </div>
+          <div>
+          <p>{{item.lcqx}}天</p>
+          <p>借款期限</p>
+          </div>
+      </div>
+
+      <div class="progress">
+      <span class="schedule schedule1" v-if="qxType != 99"><span class="progress-width"><var class="jindu-bg"  style="background:'rgba(39.114.255,.2)" :style="'width:'+parseInt(wcjd*100)+'%'"></var></span></span>
+      <div class="progress-info clearfix">
+        <div class="fl">
+            剩余可投{{(parseInt(leftCopies/100)).toLocaleString()+'.00'}}元 
+            <!--  因为最低起投100元  投资必须为100的整数倍 直接+‘.00’ -->
+        </div>
+        <div class="fr">
+            已投{{ (parseInt(wcjd*100)) }}%
+        </div>
+      </div>
+    </div>
+		</div>
+	
+		<div class="calculator">
+			<div class="calculator-content">
+          <div class="calculator-common clearfix">
+          <var class="fl">预期收益</var>
+          <p class="fr">{{ message*(baseEarnings + Number(jiangLiEarnings))*tzqx/(365*100) | fixNum }}元</p>
+        </div>
+				<div class="calculator-common border clearfi x" >
+					<span class="fl">金额</span>
+					<input class="fl "  type="number" name="" v-model="message" id="" value=""   oninput="if(value.length>10)value=value.slice(0,10)" :placeholder="parseInt(atleastMoney/100) + '元起投'" />
+
+					<!--<span class="fr all" @click="allMoney">
+						<i class="line"></i>
+						余额全投
+					</span>-->
+				</div>
+		
+			</div>
+		</div>
+		<div class="algorithm">
+       <p class="productIntroduction"> <span>  </span>  项目简介</p>
+      <p>项目名称：??? </p>
+      <p> 产品类型：???</p>
+      <p> 还款方式：???</p>
+      <p>起息时间：T{{daytime}},募集成功{{daytime ? "次日"
+              : "当日"}}计息</p>
+      <p>募集期：{{ lcqx }}天 </p>
+
+		</div>
+<!-- 		<div class="ment">
+			<img v-if="lock" @click="lock=!lock,unlock=!unlock" src="../../../assets/img/wechat/product/lock.png" />
+			<img v-if="unlock" @click="unlock=!unlock,lock=!lock" src="../../../assets/img/wechat/product/unlock.png" />购买即同意
+			<router-link :to="{path: '/app_terminal/use_agreement',query:{productId:this.$route.query.productId}}">服务协议</router-link> 与
+			<router-link :to="{path: './project_details',query:{productId:this.$route.query.productId}}">项目详情</router-link>
+		</div> -->
+
+     <p class="prompting">- 预期收益不代表实际收益，市场有风险，出借需谨慎 -</p>
+     <p class="more">  <img src="../../../assets/img/wechat/product/more.png">向上拖动，查看更多详情</p>
+
+
+
+  </div>
+  </transition>
+
+
+     <p  v-show= "loading" class="loading"    :style="{flexWrap:( isMove ==  1 ? 'wrap-reverse':'wrap')}"  @touchstart.stop= ""><svg data-v-ecaca2b0="" viewBox="0 0 64 64" class="spinner" style="fill: rgb(170, 170, 170); stroke: rgb(170, 170, 170);"><g stroke-width="4" stroke-linecap="round"><line y1="17" y2="29" transform="translate(32,32) rotate(180)"><animate attributeName="stroke-opacity" dur="750ms" values="1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(210)"><animate attributeName="stroke-opacity" dur="750ms" values="0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(240)"><animate attributeName="stroke-opacity" dur="750ms" values=".1;0;1;.85;.7;.65;.55;.45;.35;.25;.15;.1" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(270)"><animate attributeName="stroke-opacity" dur="750ms" values=".15;.1;0;1;.85;.7;.65;.55;.45;.35;.25;.15" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(300)"><animate attributeName="stroke-opacity" dur="750ms" values=".25;.15;.1;0;1;.85;.7;.65;.55;.45;.35;.25" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(330)"><animate attributeName="stroke-opacity" dur="750ms" values=".35;.25;.15;.1;0;1;.85;.7;.65;.55;.45;.35" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(0)"><animate attributeName="stroke-opacity" dur="750ms" values=".45;.35;.25;.15;.1;0;1;.85;.7;.65;.55;.45" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(30)"><animate attributeName="stroke-opacity" dur="750ms" values=".55;.45;.35;.25;.15;.1;0;1;.85;.7;.65;.55" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(60)"><animate attributeName="stroke-opacity" dur="750ms" values=".65;.55;.45;.35;.25;.15;.1;0;1;.85;.7;.65" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(90)"><animate attributeName="stroke-opacity" dur="750ms" values=".7;.65;.55;.45;.35;.25;.15;.1;0;1;.85;.7" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(120)"><animate attributeName="stroke-opacity" dur="750ms" values=".85;.7;.65;.55;.45;.35;.25;.15;.1;0;1;.85" repeatCount="indefinite"></animate></line><line y1="17" y2="29" transform="translate(32,32) rotate(150)"><animate attributeName="stroke-opacity" dur="750ms" values="1;.85;.7;.65;.55;.45;.35;.25;.15;.1;0;1" repeatCount="indefinite"></animate></line></g></svg></p>
+    
+   <transition 
+    enter-active-class="slideInUp"
+  leave-active-class="slideOutDown"
+   >
+  <div  v-if="!page1"  class="ComWarp"  @touchend ="touchendLi"   @touchstart="touchstartLi" @touchmove = 'touchmoveLi("page2",$event)'  style="background:#fff;padding-top:1px;height:80rem;overflow-y: auto;" >
+     <product-detail :productId = "this.$route.query.productId" :messageText='message'  />
+  </div>
+ </transition>
+      <transition name="fade">
+          <div v-if="close" class="prompt">{{closeMeg}}</div>
+        </transition>
+        <div class="btn">
+          <span class="botTitle">
+            {{balance}}
+          </span>
+          <button class="btnBot" :class="{on:isShow}" @click="buyFun()">{{info}}</button>
+          <!--<button class="btnBot " :class="{on:isShow==true}" v-if="parseInt(leftCopies/100) == 0" disabled>{{info}}</button>-->
+        </div>
+        <vue-public-alert :isAlert='isAlert' :isHistory='iscode' @alert-close='alertClose'></vue-public-alert>
+	</div>
+</template>
+
+<script> 
+import  productDetail from "./details"
+import vuePublicAlert from "../public/publicAlert.vue";
+import {
+  usernameKey,
+  authKey,
+  authName,
+  usernameName
+} from "@/config/config.js";
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+export default {
+  name: "hello",
+  components: {
+    vuePublicAlert,
+    productDetail
+  },
+  data: function() {
+    return {
+      loading:false,
+      isMove:0,
+      lock:true,
+      startX:'',
+      startY:'',
+      page1:true,
+      isAlert: false,
+      closeMeg: "请阅读或同意 服务协议与项目详情",
+      daytime: "",
+      qxType: "",
+      wcjd: "",
+      baseEarnings: 0,
+      jiangLiEarnings: "",
+      leftCopies: "",
+      productStatus: "",
+      title: "",
+      atleastMoney: "",
+      message: "",
+      lcqx: "",
+      lock: false,
+      unlock: true,
+      close: false,
+      bang: false,
+      isBindBank: "",
+      isPayPwd: "",
+      productId: "",
+      noLogin: "",
+      set: false,
+      isJiangLi: "",
+      tzqx: "",
+      isHistory: "",
+      balance: "加载中..",
+      allmoney: 0,
+      info: "请先充值",
+      isShow: true,
+      item: {
+        title: "",
+        financingAmount: "", //项目总金额
+        leftCopies: "", //剩余分数
+        lcqx: "", //项目期限
+        wcjd: "", //预期利率
+        productStatus: ""
+      },
+      code: "4",
+      iscode: "",
+      isnum: "",
+      islogin: false,
+    message:''};
+  },
+  watch: {
+    message: function(val) {
+      if (!this.islogin) return;
+      if (this.leftCopies == 0&&this.productStatus==0) {
+        this.info = "已售罄";
+        return;
+      }
+      if (parseFloat(this.allmoney) < parseInt(this.atleastMoney / 100)) {
+        this.balance =
+          "余额不足" + parseFloat(this.atleastMoney / 100).toFixed(2) + "元";
+        this.info = "请先充值";
+        this.isShow = true;
+      } else if (val > parseFloat(this.allmoney) && this.leftCopies != 0) {
+        this.balance = "余额不足" + parseFloat(this.message).toFixed(2) + "元";
+        this.info = "请先充值";
+        this.isShow = true;
+        // setTimeout(function() {
+        // 	this.$router.push({
+        // 		name: "wx_recharge"
+        // 	});
+        // }, 2000);
+      } else if (
+        parseFloat(this.allmoney) >= val &&
+        this.leftCopies != 0 &&
+        val != 0 &&
+        val != "" &&
+        this.productStatus == 0
+      ) {
+        this.balance = "可用余额" + this.allmoney + "元";
+        this.info = "立即出借";
+        this.isShow = true;
+      }
+    },
+    allmoney: function(val) {
+      console.log(1234656);
+    }
+  },
+  filters: {
+    fixNum(value) {
+      //  return value.toFixed(2);
+      var num2 = value.toFixed(3);
+      return num2.substring(0, num2.lastIndexOf(".") + 3);
+    }
+  },
+  created: function() {
+    this.islogin = this.getxxx() ? true : false;
+    this.loadData();
+    if (this.islogin) {
+
+      var _this = this;
+       _this.iscode = true;
+       
+      // _this.$http
+      //   .post("/Product/User/isActivate", {
+      //     parameters: "{}"
+      //   })
+      //   .then(function(res) {
+      //     _this.isnum = res.data.data.code;
+      //     if (_this.isnum == "0") {
+      //     } else if (_this.isnum == "1") {
+      //       //					alert("新用户绑卡")
+      //       _this.iscode = false;
+      //     } else {
+      //       //					alert("老用户激活")
+      //       _this.iscode = true;
+      //     }
+      //   })
+      //   .catch(function(err) {});
+    }
+  },
+  methods: {
+    getxxx() {
+      if (this.$getCookie(authName)) {
+        return this.$decryptByDES(
+          this.$getCookie(authName),
+          this.$uncompile(authKey)
+        );
+      }
+    },
+    loadData: function() {
+      this.productId = this.$route.query.productId;
+      var _this = this;
+
+      _this.$http
+        .post("/Product/getProductById", {
+          parameters: '{"productId":"' + _this.productId + '"}'
+        })
+        .then(function(res) {
+          if (res.data.end == "ok") {
+            _this.daytime = Number(res.data.obj.calcInterestWay);
+            _this.qxType = res.data.obj.qxType;
+            _this.wcjd = res.data.obj.wcjd;
+            _this.baseEarnings = res.data.obj.baseEarnings;
+            _this.jiangLiEarnings = res.data.obj.jiangLiEarnings;
+            _this.leftCopies = res.data.obj.leftCopies;
+            _this.productStatus = res.data.obj.productStatus;
+            _this.title = res.data.obj.title;
+            _this.atleastMoney = res.data.obj.atleastMoney;
+            _this.lcqx = res.data.obj.lcqx;
+            _this.isJiangLi = res.data.obj.isJiangLi;
+            _this.tzqx = res.data.obj.tzqx;
+
+            //项目详情
+            _this.item.title = res.data.obj.title;
+            _this.item.financingAmount = (res.data.obj.financingAmount / 100).toFixed(2);
+            _this.item.leftCopies = res.data.obj.leftCopies / 100;
+            _this.item.lcqx = res.data.obj.lcqx;
+            _this.item.wcjd = res.data.obj.wcjd * 100;
+            _this.item.productStatus = res.data.obj.productStatus;
+
+            if (_this.item.leftCopies == 0) {
+              _this.info = "已售罄1";
+              //   _this.balance =
+              //     "余额不足" +
+              //     parseFloat(_this.atleastMoney / 100).toFixed(2) +
+              //     "元";
+              //   _this.isShow = false;
+              _this.$http
+                .post("/Product/User/showMyAccount", {
+                  parameters: "{}"
+                })
+                .then(function(res) {
+                  if (res.data.end == "ok") {
+                    _this.allmoney = parseFloat(
+                      res.data.obj.leftMoney / 100
+                    ).toFixed(2);
+                    if (
+                      parseFloat(_this.allmoney) >=
+                      parseInt(_this.atleastMoney / 100)
+                    ) {
+                      _this.balance = "可用余额" + _this.allmoney + "元";
+                      _this.isShow = false;
+                    } else if (
+                      parseFloat(_this.allmoney) <
+                      parseInt(_this.atleastMoney / 100)
+                    ) {
+                      _this.balance =
+                        "余额不足" +
+                        parseFloat(_this.atleastMoney / 100).toFixed(2) +
+                        "元";
+                      _this.isShow = false;
+                    }
+                  }
+                })
+                .catch(function(err) {});
+            } else {
+              if (_this.islogin) {
+                _this.$http
+                  .post("/Product/User/showMyAccount", {
+                    parameters: "{}"
+                  })
+                  .then(function(res) {
+                    if (res.data.end == "ok") {
+                      _this.allmoney = parseFloat(
+                        res.data.obj.leftMoney / 100
+                      ).toFixed(2);
+
+                      if (
+                        parseFloat(_this.allmoney) >=
+                        parseInt(_this.atleastMoney / 100)
+                      ) {
+                        _this.info = "立即出借";
+                        _this.balance = "可用余额" + _this.allmoney + "元";
+                        _this.isShow = true;
+                      } else if (
+                        parseFloat(_this.allmoney) <
+                        parseInt(_this.atleastMoney / 100)
+                      ) {
+                        _this.info = "请先充值";
+                        _this.balance =
+                          "余额不足" +
+                          parseFloat(_this.atleastMoney / 100).toFixed(2) +
+                          "元";
+                        _this.isShow = true;
+                      }
+                    }
+                  })
+                  .catch(function(err) {});
+              } else {
+                _this.balance =
+                  "余额不足" +
+                  parseInt(_this.atleastMoney / 100).toFixed(2) +
+                  "元"; //
+              }
+            }
+
+            if (_this.item.productStatus == 1) {
+              _this.info = "已售罄";
+            } else if (_this.item.productStatus == 2) {
+              _this.info = "结算中";
+            } else if (_this.item.productStatus == 3) {
+              _this.info = "已还款";
+            } else if (_this.item.productStatus == -1) {
+              _this.info = "未审核";
+            } else if (_this.item.productStatus == 4) {
+              _this.info = "已流标";
+            } else if (_this.item.productStatus == 5) {
+              _this.info = "已满标";
+            } else if (_this.item.productStatus == 6) {
+              _this.info = "还款中";
+            } else if (_this.item.productStatus == -3) {
+              _this.info = "排队中";
+            }
+          }
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+      //					});
+      //判断起投金额和剩余金额
+    },
+    buyFun: function() {
+      var _this = this;
+      if (
+        _this.info == "已售罄" ||
+        _this.info == "结算中" ||
+        _this.info == "已还款" ||
+        _this.info == "未审核" ||
+        _this.info == "已流标" ||
+        _this.info == "已满标" ||
+        _this.info == "还款中" ||
+        _this.info == "排队中"
+      ) {
+        return;
+        // 123123
+      } 
+      // else if (_this.unlock) {
+      //   _this.closeMeg = "请阅读或同意 服务协议与项目详情";
+      //   _this.close = true;
+
+      //   setTimeout(function() {
+      //     _this.close = false;
+      //   }, 2000);
+      //   return;
+      // } 
+      else if (!this.islogin) {
+        //未登录
+        sessionStorage.removeItem("isAlert");
+        // 删除首页弹窗
+        var href = window.btoa(location.href);
+        // location.href = `/#/wechat/homepage/login?redirect=${href}`
+        location.replace(`/#/wechat/homepage/login?redirect=${href}`);
+      } else if (_this.info == "请先充值") {
+        //_this.closeMeg = "余额不足";
+        if (_this.isnum != 0) {
+          _this.isAlert = true;
+          return;
+        } else {
+          _this.$router.push({
+            name: "wx_recharge"
+          });
+        }
+      } else {
+        if (_this.message == "") {
+          _this.close = true;
+          _this.closeMeg = "请输入出借金额";
+          setTimeout(function() {
+            _this.close = false;
+          }, 2000);
+          return;
+        } else if (_this.message < parseInt(_this.atleastMoney / 100)) {
+          _this.close = true;
+
+          _this.closeMeg =
+            "起投金额为" + parseInt(_this.atleastMoney / 100) + "元";
+          setTimeout(function() {
+            _this.close = false;
+          }, 2000);
+
+          return;
+        } else if (parseInt(_this.message) % 100 > 0) {
+          _this.closeMeg = "出借金额必须为100的整数倍";
+          _this.close = true;
+          setTimeout(function() {
+            _this.close = false;
+          }, 2000);
+          return;
+        } else {
+          if (_this.isnum != 0) {
+            _this.isAlert = true;
+            return;
+          }
+          _this.$http
+            .post("/Product/User/showMyAccount", {
+              parameters: "{}" //'+ auth +'
+            })
+            .then(function(res) {
+              if (res.data.end == "ok") {
+                _this.isBindBank = res.data.obj.isBindBank;
+                _this.isPayPwd = res.data.obj.isPayPwd;
+                _this.isHistory = res.data.obj.isHistory;
+
+                //									if(_this.isnum != 0) {//_this.isBindBank == "0"
+                //										_this.bang = true;
+                //									} else if(_this.isBindBank == "1") {
+                _this.$router.push({
+                  name: "go_invest",
+                  query: {
+                    productId: _this.productId,
+                    moneyData: _this.message,
+                    productMessage: _this.item,
+                    baseEarnings: _this.baseEarnings
+                  }
+                });
+                //									}
+              }
+            })
+            .catch(function(err) {
+              console.log(err);
+            });
+        }
+      }
+    },
+
+    //金額全投
+    allMoney() {
+      this.message = this.allmoney;
+    },
+    alertClose() {
+      this.isAlert = false;
+    },
+    // 滑动
+    touchstartLi(e){
+      this.lock = false;
+      this.startX = e.changedTouches[0].pageX;
+      this.startY = e.changedTouches[0].pageY;
+  },
+  touchendLi(e){
+
+      
+  },
+  touchmoveLi(mark,e){
+      if (this.lock) { return}
+    // console.log(mark)
+  var  endX = e.changedTouches[0].pageX,
+      endY = e.changedTouches[0].pageY;
+
+
+    //判断滑动方向
+
+        var direction = this.GetSlideDirection(this.startX, this.startY, endX, endY);
+        switch (direction){
+
+          case 0:
+
+            // alert("没滑动");
+
+            break;
+
+          case 1:
+
+            // alert("向上");
+             
+          if (mark =='page1') {
+             e.preventDefault()
+              // this.isMove = 1;
+
+               this.loading  = true;
+             setTimeout(()=>{
+              this.loading = false;
+                this.page1 = false;
+                 this.lock  = true;
+             },600)
+              
+          }
+
+            break;
+
+          case 2:
+         
+           if (mark =='page2') { 
+              // 走了】‘’、‘、
+               
+              if ( document.getElementsByClassName('ComWarp')[0].scrollTop <= 10) {
+                  // this.isMove = 2;
+                    this.loading  = true;
+                     setTimeout(()=>{
+                      this.loading = false;
+                        this.page1 = true;
+                         this.lock  = true;
+                     },600)
+              }  
+          }
+
+            break;
+
+          case 3:
+
+           
+
+          case 4:
+    
+
+            break;
+
+          default:          
+
+        }
+
+  },
+GetSlideDirection(startX,startY, endX, endY) {
+
+
+            function GetSlideAngle(dx,dy) {
+             return Math.atan2(dy,dx) * 180 / Math.PI;
+             }
+
+          var dy = startY - endY;
+
+          var dx = endX - startX;
+          // console.log(dy+'...'+dx)
+
+          var result = 0;
+
+ 
+
+          //如果滑动距离太短
+
+          if (Math.abs(dx) < 15 && Math.abs(dy) < 15) {
+
+             return result;
+
+          }
+
+          var angle = GetSlideAngle(dx, dy);
+          // console.log(angle)
+
+          if (angle >= -45 && angle < 45) {
+
+             result = 4;
+
+          }else if (angle >= 45 && angle < 135) {
+
+             result = 1;
+
+          }else if (angle >= -135 && angle < -45) {
+
+             result = 2;
+
+          }else if ((angle >= 135 && angle <= 180) || (angle >= -180 && angle < -135)) {
+
+             result = 3;
+
+          }
+
+          return result;
+
+        
+  }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+
+
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/product_detail.less");
+</style>

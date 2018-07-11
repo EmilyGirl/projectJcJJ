@@ -1,0 +1,295 @@
+<template>
+	<div class="wx_recharge">
+		<form @submit.prevent="submit">
+			
+			<div class="withdrawBank">
+				<div style="display:flex">
+					<img class="withdrawbank1" src="../../../assets/img/wechat/mine/tixianbank.png" alt="">
+					<div style="padding-top:.5rem;">
+						<span class="withdrawcunguan">{{list.bankName}}</span><br>
+						<span class="withdrawtext">尾号（{{list.cardLast}}）</span></div>
+				</div>
+				
+				<div>
+					<img style="width:2rem" src="../../../assets/img/wechat/mine/tixiantiaozhuan.png" alt="">
+				</div>
+				
+				<div style="display:flex">
+					<img class="withdrawbank1" src="../../../assets/img/wechat/mineJ/home_icon_jiujiangbank.png" alt="">
+					<div style="padding-top:.5rem;">
+						<span class="withdrawcunguan">九江银行</span><br>
+						<span class="withdrawtext">存管账户</span></div>
+				</div>
+			</div>
+			
+			<div class="bankStatusJ">
+				通道维护中……
+			</div>
+			
+			<div class="normal">
+				<p class="bkTitle">
+					<var>
+						可用余额<span class="light"> {{(obj.leftMoney/100).toFixed(2)}} </span>元
+					</var>
+				</p>
+			</div>
+			
+			<div class="input-list">
+				<div class="icommon">
+					<label class="czjeTitle" for="mInput">充值金额 
+						<router-link :to="{path:'/app_terminal/quota'}">
+							<p class="fr">
+								支持银行
+							</p>
+						</router-link>
+					</label>
+					<span class="moneySign">￥</span><input class="recharge_input" type="number" v-model="rMoney" onkeypress="return event.keyCode>=48&&event.keyCode<=57" ng-pattern="/[^a-zA-Z]/" value="" placeholder="请输入100元以上的充值金额" id="mInput"/>
+					<!--<span class="unit">元</span>-->
+				</div>
+			</div>
+			<!--<div class="czrz clearfix">
+				<p>认证充值</p>
+				<router-link :to="{path:'/app_terminal/quota'}">
+					<p class="fr">支持银行
+						<i class="more_right"></i>
+					</p>
+				</router-link>
+			</div>-->
+			<!--<div class="czinput-list">
+				<div class="icommon clearfix">
+					<label class="bankImg fl"><img :src="list.bankURI" /></label>
+					<div class="czText fr">
+						<p>{{list.bankName}} {{list.bankAccount}}</p>
+						<p v-if="!isShow">充值单笔限额：{{list.oneTimes}}元 ，今日可充值额度：{{list.dayTimes}}元</p>
+						<p v-if="isShow">{{exchange}}</p>
+					</div>
+				</div>
+			</div>-->
+
+			<!-- <button :class="{loginBtn:loginBtn}" class="boolBtn" type="submit" :disabled="!loginBtn">下一步</button> -->
+			<Button :disabled="!loginBtn" width="90%">下一步</Button>
+			<div class="footTitle">
+				<p>注：</p>
+				<p>
+					1、如需大额充值，请到集财理财官网选择网银充值。
+				</p>
+				<p>
+					2、如需更新银行卡预留手机号请至“我的-设置”页面更新预留手 机号。
+				</p>
+			</div>
+		</form>
+		<!--<div class="reminder">
+			<p>若有任何疑问，请及时联系我们</p>
+			<p class="reminder_phone">
+				<i class="reminder_phoneico"></i>
+				<a :href='"tel:"+tel' style="color: #2772FF;">
+					<span>{{tel}}</span>
+				</a>
+			</p>
+			<p>工作日9：00-21：00</p>
+		</div>-->
+		<!--	<vue-pay-keyboard :isPay='isPay' @pas-end='pasEnd' @close='closes' ref="pay" :countDown='countDown' @get-securit='getSecurit' :securityBtnCan='securityBtn' :payTitle='payTitle'></vue-pay-keyboard>-->、
+		<!--footImg-->
+		<v-footer class="v_foot" bgColor="'#fff'"></v-footer>
+		<transition name="fade">
+			<div class="welfare-close" v-if="close">{{ message }} </div>
+		</transition>
+	</div>
+</template>
+
+<script>
+	import { createForm } from "@/config/common.js";
+	import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+	import footer from "@/components/wechat/public/Footer";
+	import {
+		usernameKey,
+		authKey,
+		authName,
+		usernameName
+	} from "@/config/config.js";
+
+	export default {
+		name: "wx_recharge",
+		data() {
+			return {
+				tel: "400-005-3300",
+				isShow: false,
+				exchange: "换卡中",
+				message: "",
+				close: false,
+				loginBtn: false,
+				//tips: false,
+				codeTitle: "获取验证码",
+				findYzm: false,
+				yzm: "",
+				rMoney: "",
+				list: [],
+				obj: {},
+				leftMoney: "0",
+				username: "",
+				isPay: false,
+				countDown: "60s后重新获取",
+				//				countBool: true,
+				second: 60,
+				preventTime: true,
+				securityBtn: true,
+				payTitle: "请输入短信验证码",
+				payType: "",
+				orderid: "",
+				cardId: "",
+				realPwd: "",
+				channel: false
+			};
+		},
+		components: {
+			'v-footer': footer,
+		},
+		created: function() {
+			var _this = this;
+			_this.leftMoney = parseFloat(_this.leftMoney).toFixed(2);
+			//_this.username = _this.$decryptByDES(_this.$getCookie(usernameName), usernameKey);
+			_this.username = this.$decryptByDES(
+				this.$getCookie(usernameName),
+				this.$uncompile(usernameKey)
+			);
+			console.log(_this.username);
+			_this.$http
+				.post("/Product/User/showMyAccountNew", {
+					parameters: "{}"
+				})
+				.then(function(res) {
+					if(res.data.end == "ok") {
+						_this.obj = res.data.obj;
+						if(res.data.list[0].bankStatus == "0") {
+							if(res.data.list[0].bankCardstatus == "2") {
+								_this.isShow = true;
+								_this.exchange = "换卡审核中，暂不充值";
+								_this.channel = false;
+								//							_this.exchange=res.data.list[0].bankCardstatus;
+								_this.loginBtn = true;
+							}
+						} else {
+							_this.isShow = true;
+							_this.exchange = "通道维护中，暂不充值";
+							_this.channel = true;
+							//							_this.exchange=res.data.list[0].bankCardstatus;
+							_this.loginBtn = false;
+						}
+
+						if(res.data.obj.isBindBank == "1") {
+							_this.list = res.data.list[0];
+						}
+						_this.leftMoney = parseFloat(
+							res.data.obj.leftMoney
+						).toFixed(2);
+					} else if(res.data.end == "noLogin") {
+						_this.message = res.data.message;
+						_this.close = true;
+						setTimeout(function() {
+							_this.close = false;
+						}, 1000);
+					}
+				})
+				.catch(function(err) {
+					console.log(err);
+				});
+		},
+		watch: {
+			rMoney: function(val) {
+				console.log(val);
+				if(this.rMoney.length != 0) {
+					this.loginBtn = true;
+				} else {
+					this.loginBtn = false;
+				}
+			}
+		},
+		methods: {
+			submit() {
+				this.payShow();
+			},
+			// unNull() {
+			//   if (this.rMoney.length != 0) {
+			//     this.loginBtn = true;
+			//   } else {
+			//     this.loginBtn = false;
+			//   }
+			// },
+			payShow() {
+				var _this = this;
+				//				_this.times();
+
+				var formData = JSON.stringify({
+					username: _this.username,
+					amount: _this.rMoney * 100
+				}); // 这里是你的表单数据
+
+				//				var moneys=_this.rMoney;
+
+				if(_this.isShow == true) {
+					_this.close = true;
+					if(_this.channel) {
+						_this.message = "通道维护中，暂不充值";
+					} else {
+						_this.message = "换卡审核中，暂不充值";
+					}
+
+					setTimeout(function() {
+						_this.close = false;
+					}, 1000);
+					return;
+				}
+				if(parseFloat(_this.rMoney) < 100) {
+					_this.close = true;
+					_this.message = "请输入大于100的金额";
+					_this.loginBtn = false;
+					setTimeout(function() {
+						_this.close = false;
+						_this.loginBtn = true;
+					}, 1000);
+					return;
+				} else if(_this.rMoney > _this.list.oneTimes) {
+					_this.close = true;
+
+					_this.message =
+						"单日充值金额不能超过" + _this.list.oneTimes + "元";
+					_this.loginBtn = false;
+					setTimeout(function() {
+						_this.close = false;
+						_this.loginBtn = true;
+					}, 1000);
+					return;
+				} else {
+					var money = _this.rMoney * 100;
+					_this.$http
+
+						.post("/Product/New/RW/recharge", {
+							parameters: '{"amount":"' + money + '"}'
+							//
+						})
+						.then(function(res) {
+							if(res.data.end == "ok") {
+								// console.log(res)
+								createForm(res.data.data, res.data.url);
+							} else if(res.data.end == "error") {
+								//                     _this.isShow = false;
+								// _this.message = res.data.message;
+								_this.$Toast(res.data.message)
+							}
+
+							//               	if()
+						})
+						.catch(function(err) {});
+				}
+			}
+		}
+	};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+	@import url("../../../assets/css/wechat/jc_reset.css");
+	@import url("../../../assets/css/wechat/layout.css");
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	@import url("../../../assets/css/wechat/wx_recharge.css");
+</style>

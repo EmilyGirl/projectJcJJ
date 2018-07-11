@@ -1,0 +1,49 @@
+<template>
+	<div class="homeTabs">
+		<ul class="tab clearfix">
+			<li v-for="(item, index) in items" class="nav-item" :class="item.name">
+
+				<router-link  class="nav-item" :to ="item.path" >
+				<!-- <img src=""> -->
+				<span></span>
+				{{item.text}}
+				</router-link>
+			</li>
+		</ul>
+		<router-view></router-view>
+	</div>
+</template>
+
+<script>
+	import reset_rem from "../../assets/js/wechat/reset_rem.js";
+	export default {
+		name: 'home',
+		data() {
+			return {
+				items: [
+					{
+						text: '首页',
+						path: '/',
+						name:'home'
+					},
+					{
+						text: '出借',
+						path: '/wechat/subpage/product',
+						name:'purchase'
+					},
+					{
+						text: '我的',
+						path: '/wechat/homepage/mine',
+						name:'mine'
+					},
+
+				]
+			}
+		},
+	}
+</script>
+
+<style scoped>
+	@import url("../../assets/css/wechat/reset_rem.css");
+	@import url("../../assets/css/wechat/home.css");
+</style>

@@ -1,0 +1,79 @@
+<template>
+	<div class="ptgg">
+		<img src="../../../assets/img/xp/ptgg/announcement_01.png"/>
+		<img src="../../../assets/img/xp/ptgg/announcement_02.png"/>
+		<img src="../../../assets/img/xp/ptgg/announcement_03.png"/>
+		<img src="../../../assets/img/xp/ptgg/announcement_04.png"/>
+		<img src="../../../assets/img/xp/ptgg/announcement_05.png"/>
+		<img src="../../../assets/img/xp/ptgg/announcement_06.png"/>
+		<div class="router">
+			<router-link to=''></router-link>
+			<router-link to=''></router-link>
+			<router-link to=''></router-link>
+			<router-link to=''></router-link>
+			<router-link to=''></router-link>
+			<router-link to=''></router-link>
+			<router-link to=''></router-link>
+		</div>
+	</div>
+</template>
+
+<script>
+</script>
+
+<style scoped lang="less">
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	.ptgg{
+		position: relative;
+		.router{
+			padding: 11rem 1.55rem 0 1.55rem;
+			position:absolute;
+			top: 0;
+			.router-link-active{
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				/*background-color: rgba(200,0,0,.3);*/
+				margin-bottom: 14.2rem;
+			}
+			.router-link-active:nth-child(2){
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				margin-bottom: 13rem;
+			}
+			.router-link-active:nth-child(3){
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				margin-bottom: 10.8rem;
+			}
+			.router-link-active:nth-child(4){
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				margin-bottom: 10.8rem;
+			}
+			.router-link-active:nth-child(5){
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				margin-bottom: 12.5rem;
+			}
+			.router-link-active:nth-child(6){
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				margin-bottom: 11rem;
+			}
+			.router-link-active:nth-child(7){
+				display:block;
+				width:34.4rem;
+				height:4rem;
+				margin-bottom: 0;
+			}
+			
+		}
+		
+	}
+</style>

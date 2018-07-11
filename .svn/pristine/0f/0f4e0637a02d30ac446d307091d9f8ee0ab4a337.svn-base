@@ -1,0 +1,205 @@
+<template>
+	<div class="zeek_record11">
+       
+		<scroller :on-infinite="infinite" ref="myscroller" v-if="showscroller">
+             
+			<div style="height: 1px;"></div>
+             <div class="zeekHeight">
+			 <div class="zeek_rewards" v-for="rate in lists"  v-on:click="$emit('toList',rate)">
+                <div class="record1_content">
+                    <div class="record1_title">{{rate.title}}</div>
+                    <div class="record1_time">{{getDate(rate.payTime)}}</div>
+                    <div class="record1_line"></div>
+                    <div class="record1_money">
+                    <div class="record1_money1">出借金额</div>
+                    <div class="record1_money2">{{(rate.inMoney/100).toFixed(2)}}元</div>
+                    </div>
+                    <div class="record1_money">
+                    <div class="record1_money1">还款方式</div>
+                    <div class="record1_money2"  v-if="rate.payInterestWay==0">按月付息到期还本</div>
+                    <div class="record1_money2" v-if="rate.payInterestWay==1">到期还本付息</div>
+                    </div>
+                    <div class="record1_money">
+                    <div class="record1_money1">还期时间</div>
+                    <div class="record1_money2">{{getDate(rate.finishTime - (!rate.calcInterestWay?(24*60*60*1000):0))}}</div>
+                    </div>
+                    <!-- spinner-holder active -->
+                    <div class="record1_money">
+                    <div class="record1_money1">预期收益</div>
+                    <div class="record1_money2">{{(rate.shouyi/100).toFixed(2)}}元</div>
+                    </div>
+                </div>
+          
+             </div> 
+         </div>
+        <v-footer/>
+        
+		</scroller>
+	
+		<div class="null_go" v-if="showscroller==false">
+					<img class="null_zeek" src="../../../assets/img/wechat/mine/chujiejilu.png" alt="">
+				<h3>您还没有出借记录哦</h3>
+        <div class="wenzi">马上出借享收益～</div>
+				<!-- <button class="null_go1" @click="toPro">去出借</button> -->
+         <Button :message='message1'  @change="toPro()">去出借 </Button>
+			</div>
+	
+        
+	</div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import footer from "@/components/wechat/public/Footer";
+import {
+  usernameKey,
+  authKey,
+  authName,
+  usernameName
+} from "@/config/config.js";
+export default {
+  components: {
+    "v-footer": footer
+  },
+  data() {
+    return {
+      //   第一个tab对应的数据
+      rates: [],
+      offset: 0,
+      noData: false,
+      lists: [],
+       message1:'去出借',
+      showscroller: true
+    };
+  },
+  filters: {
+    fixNum(value) {
+      // return value.toFixed(2);
+      var num2 = value.toFixed(3);
+      return num2.substring(0, num2.lastIndexOf(".") + 3);
+    },
+    formatDate(time) {
+      var date = new Date(time);
+      return formatDate(date, "yyyy-MM-dd");
+    }
+  },
+  created: function() {
+      
+  },
+
+  methods: {
+    //   时间转换**************************
+    add0(m) {
+      return m < 10 ? "0" + m : m;
+    },
+    getDate(shijianchuo) {
+      //shijianchuo是整数，否则要parseInt转换
+      var time = new Date(shijianchuo);
+      var y = time.getFullYear();
+      var m = time.getMonth() + 1;
+      var d = time.getDate();
+      var h = time.getHours();
+      var mm = time.getMinutes();
+      var s = time.getSeconds();
+      return y + "-" + this.add0(m) + "-" + this.add0(d);
+    },
+    // ****************************************
+    getxxx: function() {
+      if (this.$getCookie(usernameName)) {
+        return this.$decryptByDES(
+          this.$getCookie(usernameName),
+          this.$uncompile(usernameKey)
+        );
+      }
+    },
+    listGo: function(list) {
+      console.log(list);
+      this.$router.push({
+        name: "record_detail",
+        query: {
+          list: list,
+          type: 1
+        }
+      });
+    },
+    infinite(done) {
+      if (this.noData) {
+        setTimeout(() => {
+          this.$refs.myscroller.finishInfinite(2);
+        });
+        return;
+      }
+      let self = this; //this指向问题
+      setTimeout(() => {
+        self.$refs.myscroller.resize();
+        done();
+      }, 1200);
+
+      this.offset++;
+      this.loadData();
+    },
+    loadData() {
+      var _this = this;
+      _this.$http
+        .post("/Product/User/loadInvestorsRecord", {
+          parameters:
+            // "authorization":"' + _this.auth + '",
+            '{"currentPage":"' + _this.offset + '","type":"3"}'
+        })
+        .then(function(res) {
+          if (res.data.end == "ok") {
+            _this.lists = _this.lists.concat(res.data.data.data);
+          } else if (res.data.end == "noData" && _this.offset == 1) {
+            _this.showscroller = false;
+          } else if (res.data.end == "noData") {
+            _this.noData = true;
+            _this.$Toast(res.data.message);
+          } else {
+            _this.showscroller = false;
+          }
+        })
+        .catch(function(err) {
+          console.log(err);
+          _this.showscroller = false;
+        });
+    },
+    toDetail: function(rate) {
+      this.$router.push({
+        name: "product_detail",
+        query: {
+          productId: rate.productId
+        }
+      });
+    },
+    toPro: function() {
+      this.$router.push({
+        path: "/wechat/subpage/product"
+      });
+    },
+    topact: function(rate) {
+      var _this = this;
+      console.log(rate.hkly);
+      this.auth = _this.$decryptByDES(
+        _this.$getCookie(authName),
+        _this.$uncompile(authKey)
+      );
+      window.location.href = rate.hkly + "&auth=" + this.auth;
+    }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/zeek_rewards.less");
+</style>
+<style>
+.no-data-text {
+  font-size: 1.5rem;
+  color: transparent!important;
+}
+.spinner-holder svg{
+
+}
+</style>
+

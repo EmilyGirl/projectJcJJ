@@ -1,0 +1,213 @@
+<template>
+	<div class="public-alert" v-if="selfAlert">
+		<div class="vue-alerts">
+			<img src="../../../assets/img/wechat/mineJ/pop_bg_cunguan.png" class="bg" />
+			<div class="title">开通银行存管</div>
+			<p class="desc">安全出借 安享收益</p>
+			<button @click="btnFunc">立即开通</button>
+			<div class="vue-about"><span @click="about">了解存管</span></div>
+			<img src="../../../assets/img/wechat/mine/icon_guanbi.png" class="vue-close-btn" @click="close" />
+		</div>
+	</div>
+</template>
+
+<script>
+	//import {} from "@/config/common.js";
+	import { usernameKey, authKey, authName, usernameName } from '@/config/config.js';
+	import { createForm } from "@/config/common.js";
+	export default {
+		name: "vue-public-alert",
+		props: {
+			isHistory: {
+				type: Boolean,
+				default: true
+			},
+			isAlert: {
+				type: Boolean,
+				default: false
+			}
+		},
+		data() {
+			return {
+				//				msg: {
+				//					title: '提示',
+				//					body: '当前银行卡正在换卡审核中，请在审核完成后再行充值。',
+				//					affirm: '确定'
+				//				},
+				cunguanUrl: "",
+				cunguanParam: "",
+				selfAlert: false,
+				historyUser: true,
+			};
+		},
+		computed: {
+
+		},
+		watch:{
+			
+			isAlert(f){
+				var _this = this;
+				if(f) {
+					_this.selfAlert = true;
+					//alert("接到弹出指令");
+					//return;
+				} else {
+					//alert("不弹");
+				}
+			}
+		},
+		
+		updated() {
+			
+
+		},
+		created() {
+			var _this = this;
+			//alert("弹窗初始化")
+			if(this.isAlert) {
+				this.selfAlert = true;
+				//alert("弹窗初始化时收到正指令");
+			}
+			if(this.getxxx()) {
+				_this.$http.post("/Product/User/isActivate", {
+						parameters: "{}"
+					})
+					.then(function(res) {
+						if(res.data.end == "ok") {
+							var bankCode = res.data.data.code;
+							//bankCode = "5";
+							console.log(bankCode);
+							switch(bankCode) {
+								case "1":
+									_this.selfAlert = true;
+									_this.historyUser = false;
+									break;
+								case "5":
+									_this.selfAlert = true;
+									_this.historyUser = true;
+									break;
+								default:
+									_this.selfAlert = false;
+							}
+
+						} else {
+							_this.$Toast(res.data.message);
+						}
+					})
+					.catch(function(err) {
+						console.log(err);
+					});
+			}
+
+		},
+		methods: {
+			getxxx() {
+				if(this.$getCookie(usernameName)) {
+					return this.$decryptByDES(this.$getCookie(usernameName), this.$uncompile(usernameKey));
+				}
+			},
+			close() {
+				this.selfAlert = false;
+				this.$emit("alert-close");
+			},
+			btnFunc() {
+				//				this.$emit('alert-func');
+				var _this = this;
+				if(this.historyUser) {
+					//					alert('存管页面');
+					_this.$http
+						.post("/Product/User/bindCardJiuJiang", {
+							parameters: '{"type":"0"}'
+						})
+						.then(function(res) {
+							if(res.data.end == "ok") {
+								_this.cunguanUrl = res.data.url;
+								_this.cunguanParam = res.data.data;
+								createForm(_this.cunguanParam, _this.cunguanUrl);
+							} else {
+								alert(res.data.message);
+							}
+						})
+						.catch(function(err) {
+							console.log(err);
+						});
+				} else {
+					this.$router.push({
+						path: "/wechat/subpage/bind_bank"
+					});
+				}
+			},
+			about() {
+				// alert('了解存管');
+				this.$router.push({
+					path: "/app_terminal/aboutCG"
+				});
+			}
+		}
+	};
+</script>
+
+<style lang="less" scoped>
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	.public-alert {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		bottom: 0;
+		top: 0;
+		left: 0;
+		overflow: hidden;
+		background-color: rgba(0, 0, 0, 0.5);
+		z-index: 10000;
+		.vue-alerts {
+			width: 30rem;
+			height: 36rem;
+			background-color: #ffffff;
+			border-radius: 1.2rem;
+			margin: 30% auto;
+			text-align: center;
+			position: relative;
+			padding: 1.4rem 0;
+			.bg {
+				width: 100%;
+			}
+			.title{
+				font-size: 2.6rem;
+				line-height: normal;
+				margin-top: .5rem;
+			}
+			.desc{
+				font-size: 1.4rem;
+				color: #606060;
+				line-height: normal;
+			}
+			.vue-close-btn {
+				position: absolute;
+				width: 5rem;
+				left: 50%;
+				margin-left: -2.5rem;
+				bottom: -7.7rem;
+			}
+			button {
+				position: absolute;
+				width: 24rem;
+				top: 27.6rem;
+				left: 50%;
+				margin-left: -12rem;
+				padding: 0.9rem;
+				font-size: 1.6rem;
+				background-color: #ff5050;
+				color: #ffffff;
+				border-radius: .2rem;
+			}
+			.vue-about {
+				width: 100%;
+				font-size: 1.4rem;
+				position: absolute;
+				top: 32.8rem;
+				text-align: center;
+				color: #2772ff;
+			}
+		}
+	}
+</style>

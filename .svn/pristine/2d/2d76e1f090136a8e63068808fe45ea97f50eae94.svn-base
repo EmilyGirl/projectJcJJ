@@ -1,0 +1,722 @@
+<template>
+  <div id="index" class="index">
+    <div class="headSwiper">
+      <swiper v-if="swiperSlides.length>0" :options="swiperOption">
+        <swiper-slide v-for="(slide, index) in swiperSlides" :key="index" class='bannerSlide '>
+          <a :href="slide.hdUrl">
+            <img :src="slide.imgURL">
+          </a>
+        </swiper-slide>
+        <div class="swiper-pagination" slot="pagination"></div>
+      </swiper>
+    </div>
+
+    <!-- iconlist -->
+    <ul class="iconlist icon-section">
+      <li v-for="(icon, index) in iconsList">
+        <a :href="icon.h5URL">
+          <img :src="icon.iconURL">
+          <span>icon.name</span>
+        </a>
+      </li>
+    </ul>
+    <!-- iconlist -->
+    <!-- 公告轮播 -->
+    <div class="content">
+      <div class="announcement">
+        <div class="textSwiper">
+          <img src="./../../../assets/img/index/icon_zuixingonggao.png">
+          <span style="   font-size:.8rem; margin: 0 .6rem;line-height: 1.4rem;">●</span>
+          <swiper v-if="swiperSlides.length>0" :options="noticeOption">
+            <swiper-slide v-for="(slide, index) in noticeTitle" :key="index" class='noticeSlide '>
+              <!-- <a :href="slide.noticeUrl"> -->
+              <p>{{slide.title}}</p>
+              <!-- </a> -->
+            </swiper-slide>
+          </swiper>
+        </div>
+        <span>更多</span>
+      </div>
+      <!-- 公告轮播 -->
+      <!-- 注册 -->
+
+      <!-- 判断为空 -->
+      <div v-if="!!(userGuideMap&&userGuideMap.img)" class="register">
+        <!-- <div class="registerIcon">
+				<img src="./../../../assets/img/index/icon_zhucelibao.png">
+				<div>
+					<p>注册即送888元大礼包</p>
+					<p>新人专享额外加息2.7%</p>
+				</div>
+			</div>
+			<button>注册立享礼包</button> -->
+
+        <img :src="userGuideMap.img">
+      </div>
+    </div>
+    <!-- 注册 -->
+    <!-- 新手尊享 -->
+
+    <div class="novice" v-if="firstProductList.lenght>0">
+      <div class="noviceTitle">
+        <div>
+          <span class="grayline"></span>
+          <p>新手尊享</p>
+          <p>收益更高</p>
+        </div>
+      </div>
+      <div class="noviceContent" @click="listFun(freshProductList[0].id)">
+        <div class="noviceCardTitle">
+          <p>{{ freshProductList[0].title }}</p>
+          <p>{{ freshProductList[0].lcqx }}天期限</p>
+        </div>
+        <div class="noviceMiddle">
+          <div>
+            <div class="profit">
+              <p>{{ freshProductList[0].baseEarnings | fixNum }}</p>
+              <p style="font-size:1rem" v-if="freshProductList[0].isJiangLi == 1">+{{ parseFloat(freshProductList[0].jiangLiEarnings) | fixNum }}%</p>
+            </div>
+            <p style="padding-top:.6rem;font-size:1rem;">预期年化</p>
+          </div>
+          <div class="purchaseBtn">{{parseInt(freshProductList[0].leftCopies/100) > 0 ? '立即出借':'已结束'}}</div>
+        </div>
+        <div class="progressWrap">
+          <div class="progress">
+            <p>
+              <span class="progressDefault">
+                <span class="ProductProgress" :style="'width:'+parseInt(freshProductList[0].wcjd*100)+'%'"></span>
+              </span>
+            </p>
+            <span>
+              {{ parseInt(freshProductList[0].wcjd*100) }}%
+            </span>
+          </div>
+          <span>
+            剩余可投:{{ parseInt(freshProductList[0].leftCopies/100) }}元
+          </span>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- 新手尊享 -->
+
+    <!-- 热门推荐 -->
+    <div class="popularRecommend">
+      <div class="noviceTitle">
+        <div>
+          <span class="grayline"></span>
+          <p>热门推荐</p>
+        </div>
+      </div>
+
+      <div v-for="list in firstProductList" class="noviceContent listContent" @click="listFun(list.id) ">
+        <div class="noviceCardTitle">
+          <p>{{ list.title }}</p>
+          <p>{{ list.lcqx }}天期限</p>
+        </div>
+        <div class="noviceMiddle">
+          <div>
+            <div class="profit">
+              <p>{{ list.baseEarnings | fixNum }}</p>
+              <p style="font-size:1rem" v-if="list.isJiangLi == 1">+{{ parseFloat(list.jiangLiEarnings) | fixNum }}%</p>
+            </div>
+            <p style="padding-top:.6rem;font-size:1rem;color:#606060">预期年化</p>
+          </div>
+          <div class="purchaseBtn" :style="{ backgroundColor: (parseInt(list.leftCopies/100) > 0 ? '#2772FF':'#C7CCD6')}">{{parseInt(list.leftCopies/100) > 0 ? '立即出借':'还款中'}}</div>
+        </div>
+        <div class="progressWrap">
+          <div class="progress">
+            <p>
+              <span class="progressDefault">
+                <span class="ProductProgress" :style="{width:parseInt(list.wcjd*100)+'%' , backgroundColor: ( parseInt(list.leftCopies/100) > 0 ? '#3291FF':'#E0E0E0') } "></span>
+              </span>
+            </p>
+            <span :style="{color: ( parseInt(list.leftCopies/100) > 0 ? '#3291FF':'#E0E0E0') } ">
+              {{ parseInt(list.wcjd*100) }}%
+            </span>
+          </div>
+          <span :style="{color: ( parseInt(list.leftCopies/100) > 0 ? '#3291FF':'#E0E0E0') } ">
+            剩余可投:{{ parseInt(list.leftCopies/100) }}元
+          </span>
+
+        </div>
+      </div>
+
+    </div>
+    <!-- 累计统计 -->
+    <div class="stat">
+      <div class="cumulativeTurnover">
+        <div>
+          <p class="allStatMoney">{{dataStatistics.allAmount/100 | toCurrencyString}}</p>
+          <p>累计成交额</p>
+        </div>
+
+      </div>
+
+      <div class="statInfo">
+        <div class="statPr">
+          <p class="statAmount">{{dataStatistics.dayAmount/100 | toCurrencyString}}</p>
+          <p>昨日成交额</p>
+        </div>
+        <div>
+          <p class="statAmount">{{dataStatistics.monthAmount/100 | toCurrencyString}}</p>
+          <p>本月成交额</p>
+        </div>
+        <div>
+          <p class="statAmount">{{dataStatistics.allEarmAmount/100 | toCurrencyString}}</p>
+          <p>累计为用户赚取</p>
+        </div>
+        <div>
+          <p class="statAmount">{{dataStatistics.allVolume}}</p>
+          <p>累计成交笔数</p>
+        </div>
+
+      </div>
+      <!-- 三个 icion -->
+      <div class="introduceContainer">
+        <div>
+          <img src="./../../../assets/img/index/logo_jiujiangbank.png">
+          <p class="title">九江银行</p>
+          <p class="desc">资金存管</p>
+        </div>
+        <div>
+          <img src="./../../../assets/img/index/logo_yangqi.png">
+          <p class="title">央企入股</p>
+          <p class="desc">战略合作</p>
+        </div>
+        <div>
+          <img src="./../../../assets/img/index/logo_huashengda.png">
+          <p class="title">战略合作</p>
+          <p class="desc">名企控股</p>
+        </div>
+
+      </div>
+    </div>
+    <!-- footer -->
+    <div class="footer">
+      <p><img src="./../../../assets/img/index/icon_baozhang.png">您的资产由银行资金存管系统全程监管</p>
+      <p>市场有风险，投资需谨慎</p>
+
+    </div>
+
+  </div>
+
+</template>
+
+<script>
+import reset_rem from "./../../../assets/js/wechat/reset_rem.js";
+import "swiper/dist/css/swiper.css";
+import {
+    usernameKey,
+    authKey,
+    authName,
+    usernameName
+} from "@/config/config.js";
+import { swiper, swiperSlide } from "vue-awesome-swiper";
+// import Announcement from '@/assets/img/index/icon_zuixingonggao.png';
+
+// 考虑 是不是左右 都判空一下
+
+export default {
+    name: "index",
+    data() {
+        return {
+            list: [],
+            swiperOption: {
+                loop: true,
+                autoplay: true, //等同于以下设置
+                pagination: {
+                    el: ".swiper-pagination"
+                }
+            },
+            noticeOption: {
+                loop: true,
+                autoplay: {
+                    delay: 2500 //1秒切换一次
+                },
+                direction: "vertical"
+            },
+            swiperSlides: [],
+            noticeTitle: [],
+            iconsList: [],
+            userGuideMap: "",
+            firstProductList: [],
+            freshProductList: [],
+            dataStatistics: ""
+        };
+    },
+
+    components: {
+        swiper,
+        swiperSlide
+    },
+    filters: {
+        fixNum(value) {
+            return value.toFixed(2);
+        },
+        // toCurrencyString(money) {
+        //     return money.toFixed(2).replace(/\d(?=(?:\d{3})+\b)/g, "$&,"); // 这里看你是不是要小数
+        // }
+    },
+
+    computed: {},
+    mounted: function() {
+        let params = {
+            bannerType: 1,
+            moduleName: "shouye"
+        };
+        this.$http
+            .post("/Product/loadStartPageContent", {
+                parameters: JSON.stringify(params)
+            })
+            .then(res => {
+                console.log( res.data)
+                this.swiperSlides = res.data.data.bannerList;
+                this.iconsList = res.data.data.iconsList;
+                this.noticeTitle = res.data.data.noticeTitle;
+                this.userGuideMap = res.data.data.userGuideMap;
+                this.firstProductList = res.data.data.firstProductList;
+                this.freshProductList = res.data.data.freshProductList;
+                this.dataStatistics = res.data.data.dataStatistics;
+            });
+    },
+    methods: {
+        // 跳转至详情
+        listFun: function(productId) {
+            this.$router.push({
+                name: "product_detail",
+                query: {
+                    productId: productId
+                }
+            });
+        }
+    }
+};
+</script>
+
+<style type="text/css">
+.index .swiper-pagination-bullet {
+    width: 0.8rem;
+    opacity: 0.3;
+    background: #ffffff;
+    border-radius: 8px;
+    /*box-shadow:0 2px 1px 0 rgba(0,0,0,1);*/
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    /*background-color: rgba(255,255,255,.3);*/
+}
+.index .swiper-pagination-bullet-active {
+    width: 1.2rem;
+    opacity: 1;
+    /*background-color: #fff*/
+}
+</style>
+<style scoped  lang ='less'>
+@import url("./../../../assets/css/wechat/reset_rem.css");
+
+.index {
+    line-height: initial;
+
+    .headSwiper {
+        height: 15rem;
+    }
+    .swiper-container {
+        margin: inherit;
+    }
+    .swiper-slide.bannerSlide {
+        height: 15rem;
+        /*height:100%;*/
+        paddingbackground-color: #fff;
+    }
+    .icon-section {
+        margin-bottom: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+        background-color: #fff;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .icon-section li {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 25%;
+        height: 9rem;
+    }
+    .icon-section li a {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        /*width: 25%;
+		height: 9rem;*/
+    }
+    .icon-section li img {
+        width: 5rem;
+        height: 5rem;
+        border-radius: 100%;
+    }
+    .icon-section span {
+        font-size: 1.2rem;
+        color: #202020;
+        padding-top: 0.5rem;
+    }
+    .content {
+        /*padding: 0 1.2rem;*/
+        background-color: #f5f5f5;
+        /*background-color: #fff;*/
+    }
+    .announcement {
+        padding: 0 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 5rem;
+        background-color: #fff;
+        margin-bottom: 1rem;
+    }
+    .announcement img {
+        width: 7rem;
+        height: 1.4rem;
+    }
+    .textSwiper {
+        display: flex;
+        width: 80%;
+        line-height: 3rem;
+        height: 1.5rem;
+    }
+    .announcement span {
+        font-size: 1.2rem;
+        color: #a0a0a0;
+    }
+    .textSwiper p {
+        /*padding-left: 1rem; */
+        font-size: 1.4rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .noticeSlide {
+        height: 1.4rem;
+        overflow: hidden;
+        line-height: 1.4rem;
+    }
+    /*注册*/
+    .register {
+        display: flex;
+        padding: 0 1.2rem;
+        margin-bottom: 1rem;
+        height: 6rem;
+        align-items: center;
+        background-color: #fff;
+        justify-content: space-between;
+    }
+
+    .register > img {
+        width: 100%;
+        height: 100%;
+    }
+    .registerIcon {
+        display: flex;
+        align-items: center;
+    }
+    .registerIcon p:nth-child(1) {
+        font-size: 1.2rem;
+        height: 2rem;
+        line-height: 2rem;
+    }
+    .registerIcon p:nth-child(2) {
+        font-size: 1rem;
+        height: 1.2rem;
+        line-height: 1.2rem;
+        color: #606060;
+    }
+    .register button {
+        border: none;
+        width: 9rem;
+        height: 3rem;
+        /*line-height: 2.rem;*/
+        border-radius: 100px;
+        background-color: #2772ff;
+        color: #fff;
+        font-size: 1rem;
+    }
+    /*新手专享*/
+    .novice {
+        background-color: #fff;
+        margin-bottom: 1rem;
+        padding: 1px 1.2rem;
+    }
+    .grayline {
+        display: inline-block;
+        height: 1.4rem;
+        width: 0.4rem;
+        background-color: #d8d8d8;
+    }
+
+    .noviceTitle {
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #e0e0e0;
+        height: 4rem;
+    }
+    .noviceTitle > div {
+        display: flex;
+        height: 1.8rem;
+        flex-direction: row;
+        align-items: center;
+    }
+    .noviceTitle p {
+        display: flex;
+        align-items: center;
+        font-size: 1.4rem;
+        color: #202020;
+        margin-left: 1rem;
+        justify-content: center;
+    }
+    .noviceTitle p:nth-child(3) {
+        /*background: linear-gradient(to bottom right, #FF6767  , #FF9C71 ); /* 标准的语法  从左上角到右下角的线性渐变：*/
+        background: linear-gradient(
+            to right,
+            #ff6767,
+            #ff9c71
+        ); /* 标准的语法  从左上角到右下角的线性渐变：*/
+        border-radius: 100px;
+        color: #fff;
+        font-size: 0.7rem;
+        width: 4rem;
+        text-align: center;
+        height: 1.4rem;
+    }
+    .noviceContent {
+        background: linear-gradient(
+            to bottom right,
+            #ff9171,
+            #ff6767
+        ); /* 标准的语法  从左上角到右下角的线性渐变：*/
+        border-radius: 0.8rem;
+        margin: 1rem 0;
+        padding: 1.2rem;
+    }
+    .popularRecommend {
+        background-color: #fff;
+        margin-bottom: -0.3rem;
+        padding: 0 1.2rem;
+    }
+    .noviceCardTitle {
+        /*padding: 1.2rem;*/
+        font-size: 1.6rem;
+        color: #fff;
+        display: flex;
+        flex-direction: row;
+    }
+    .noviceCardTitle p:nth-child(2) {
+        border: 1px solid #ffffff;
+        padding: 0.1rem 0.7rem;
+        font-size: 1rem;
+        border-radius: 100px;
+        margin-left: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .noviceMiddle {
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .purchaseBtn {
+        font-size: 1.3rem;
+        color: #ff7069;
+        padding: 0.5rem 1.5rem;
+        background-color: #fff;
+        border-radius: 100px;
+        width: 5.3rem;
+        text-align: center;
+    }
+    .profit {
+        height: 3rem;
+        display: flex;
+        align-items: flex-end;
+    }
+    .profit p:nth-child(1) {
+        line-height: 2.5rem;
+        font-size: 3rem;
+    }
+    .progress {
+        width: 60%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 2rem;
+    }
+    .progress > p {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        margin-right: 0.5rem;
+    }
+    .progressDefault {
+        width: 100%;
+        height: 0.2rem;
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.4);
+        position: relative;
+    }
+    .ProductProgress {
+        width: 20%;
+        height: 0.2rem;
+        display: inline-block;
+        background: #fff;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .progressWrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1rem;
+        color: #fff;
+        margin-top: 1rem;
+    }
+    .popularRecommend div:last-child {
+        border: none;
+    }
+
+    .popularRecommend .listContent {
+        padding: 0;
+        margin: 0;
+        margin: 1.3rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid #e0e0e0;
+        background: #fff;
+        border-radius: 0px;
+
+        .noviceCardTitle p:nth-child(1) {
+            color: #202020;
+        }
+        .noviceCardTitle p:nth-child(2) {
+            color: #a0a0a0;
+            border: 1px solid #a0a0a0;
+        }
+        .profit p:nth-child(1) {
+            color: #ff5050;
+        }
+        .profit p:nth-child(2) {
+            color: #ff5050;
+        }
+        .purchaseBtn {
+            background-color: #2772ff;
+            color: #fff;
+        }
+        .progressWrap {
+            color: #3291ff;
+        }
+        .progressDefault {
+            background-color: #eaf4ff;
+        }
+        .ProductProgress {
+            background-color: #a1cdff;
+        }
+    }
+    .stat {
+        background-color: #fff;
+        padding-top: 0.01rem;
+    }
+    .cumulativeTurnover {
+        background: #fff url("./../../../assets/img/index/shuju_bg.png")
+            no-repeat;
+        background-size: 100% 100%;
+        height: 8rem;
+        margin: 1.2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        line-height: initial;
+        color: #fff;
+    }
+    .cumulativeTurnover p {
+        text-align: center;
+    }
+    .cumulativeTurnover .allStatMoney {
+        font-size: 2rem;
+    }
+
+    .statInfo {
+        padding: 1rem 1.2rem;
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .statInfo div {
+        width: 50%;
+        box-sizing: border-box;
+        height: 6rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #acb1ba;
+        font-size: 1rem;
+    }
+    .statInfo div:nth-child(1) {
+        border-right: 1px solid #e0e0e0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .statInfo div:nth-child(2) {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .statInfo div:nth-child(3) {
+        border-right: 1px solid #e0e0e0;
+    }
+    /*.statInfo div:nth-child(4){
+		border-left: 1px solid #E0E0E0; 
+	}*/
+    .statAmount {
+        font-size: 1.5rem;
+        line-height: 2.5rem;
+        color: #202020;
+    }
+    .introduceContainer {
+        padding-bottom: 2rem;
+        display: flex;
+        /*padding: 1.3rem;*/
+        justify-content: space-around;
+        div {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+        div img {
+            width: 3.5rem;
+        }
+        .title {
+            color: #202020;
+            font-size: 1.2rem;
+            line-height: 2rem;
+        }
+        .desc {
+            color: #606060;
+            font-size: 1rem;
+            /*line-height: 2rem;*/
+        }
+    }
+    .footer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        height: 9rem;
+        padding-bottom: 7rem;
+        color: #a0a0a0;
+        font-size: 1.1rem;
+        img {
+            width: 1.6rem;
+        }
+    }
+}
+</style>

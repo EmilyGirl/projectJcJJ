@@ -1,0 +1,268 @@
+<template>
+    <div class="code_input" @click="inputFoc" v-if="inputShow">
+        <div class="center">
+            <div class="input_title">{{inputTitle}}</div>
+            <var class="input_close" @click.stop="inputCloseFun">×</var>
+            <div class="con_bg">
+                <span class="border"></span>
+                <span class="border"></span>
+                <span class="border"></span>
+                <span class="border"></span>
+                <span class="border"></span>
+                <span class="border"></span>
+            </div>
+            <div class="input_block">
+                <input type="tel" class="realInput" autofocus v-model="thcode" ref='inputs' maxlength="6" @keyup="Regs" />
+                <!--:readonly="readonlys"  @keyup="Regs"-->
+            </div>
+            <div class="hideInput"></div>
+            <div class="disClick"></div>
+            <div class="inputBot">
+                <button class="getSecuritBtn" :class="{getAfter:getAfter}" :disabled="getAfter" @click.stop="getSecurit">{{btntxt}}</button>
+            </div>
+        </div>
+
+    </div>
+
+</template>
+<script>
+    import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+    export default {
+        name: 'vueInput',
+        props: {
+            inputTitle: {
+                type: String,
+                default: '请输入验证码'
+            },
+            inputShow: {
+                type: Boolean,
+                default: false,
+            },
+        },
+        data() {
+            return {
+                thcode: '',
+                readonlys: false,
+                getAfter: false,
+				btntxt:'获取验证码',
+				countNum: 10,
+				reGetAfter:false,
+            }
+        },
+        updated() {
+            if (this.$refs.inputs) {
+                this.$refs.inputs.focus(); // 获取焦点
+            }
+			if(this.inputShow&&(!this.getAfter)&&this.reGetAfter){
+				this.getSecurit();
+			}
+        },
+        mounted() {
+			if (this.$refs.inputs) {
+				this.$refs.inputs.focus(); // 获取焦点
+			}
+			this.reGetAfter=true;
+        },
+		destroyed(){
+			clearInterval(window.btn_timer);
+		},
+        watch: {
+            thcode(val) {
+                this.thcode = val.replace(/\D/g, '');
+                if (val.length == 6) {
+                    this.readonlys = true;
+                    this.$refs.inputs.blur();
+                    this.thcode = '';
+                    this.$emit('inputEnd', val);
+                    //alert("Do anything");
+                }
+            }
+
+        },
+        methods: {
+            times() {
+                var _this = this;
+                var wait = _this.second;
+                this.$refs.pay.countBool = _this.countBool;
+
+                function time() {
+                    if (wait == 0) {
+                        clearInterval(window.countTime);
+                        _this.securityBtn = false;
+                        _this.$refs.pay.securitBtnCan(_this.securityBtn);
+                        _this.countDown = '重新发送'
+                        wait = _this.second;
+                    } else {
+                        _this.securityBtn = true;
+                        _this.$refs.pay.securitBtnCan(_this.securityBtn);
+                        wait--;
+                        _this.countDown = wait + "s后重新获取"
+
+                    }
+                };
+                window.countTime = setInterval(time, 1000);
+            },
+            getSecurit() {
+				this.countDown();
+				this.$emit('findCode');
+            },
+            inputFoc() {
+                var that = this;
+                //当失去交点以后  让文本框内的文字获得焦点  并且光标移到最后一个字后面
+                if (this.thcode.length < 6)
+                    this.$refs.inputs.focus(); // 获取焦点  
+            },
+            Regs() {
+                this.thcode = this.thcode.replace(/\D/g, '');
+            },
+            inputCloseFun() {
+                this.thcode = '';
+                this.$emit('closeInput');
+            },
+
+            countDown() {
+				var that=this;
+                var btn_timer;
+				
+                function changeBtn() {
+                    if (that.countNum >= 0) {
+                        that.btntxt=that.countNum + "S后重新获取";
+                        that.countNum --;
+                    } else {
+                        stopBtn();
+                    }
+                }
+
+                function stopBtn() {
+                    clearInterval(window.btn_timer);
+                    that.getAfter = false;
+                    that.btntxt= "获取验证码";
+                    that.countNum = 10;
+                }
+
+                function sendWaiting() {
+                    changeBtn();
+					that.getAfter = true;
+					that.reGetAfter = false;
+                    window.btn_timer = setInterval(changeBtn, 1000);
+                }
+				if(that.getAfter) return;
+				sendWaiting();
+            },
+
+        }
+    }
+</script>
+<style scoped lang="less">
+    @import url("../../../assets/css/wechat/reset_rem.css");
+
+
+    .code_input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, .3);
+        top: 0;
+        left: 0;
+        z-index: 10000;
+        font-size: 1.6rem;
+        .center {
+            box-sizing: border-box;
+            position: absolute;
+            width: 80%;
+            height: 22rem;
+            background-color: #FFFFFF;
+            left: 50%;
+            margin-left: -40%;
+            top: 30%;
+            padding: 2.6rem;
+            border-radius: 1rem;
+            .input_title {
+                font-size: 1.8rem;
+                font-weight: bold;
+                text-align: center;
+                color: #202020;
+            }
+            .input_close {
+                position: absolute;
+                right: .6rem;
+                top: .6rem;
+                font-size: 2.8rem; //line-height: 2.8rem;
+                color: #6B718C;
+                padding: 1rem 1rem 1rem 1rem;
+            }
+            .con_bg {
+                //background-color: #00A8F1;
+                position: absolute;
+                width: 100%;
+                top: 10rem;
+                left: 0;
+                text-align: center;
+                overflow: hidden;
+                display: flex;
+                justify-content: center;
+                >span {
+                    box-sizing: border-box; //float: left;
+                    width: 3.6rem;
+                    height: 3.6rem;
+                    border-bottom: .1rem solid #DADDE0;
+                    margin: 0 .35rem;
+                }
+            }
+            .input_block {
+                position: absolute;
+                width: 100%;
+                padding: .4rem 0;
+                top: 10rem;
+                left: 0; //background-color: red;
+                //opacity: .5;
+                overflow: hidden;
+                text-overflow: clip; //-webkit-user-select: none;
+                .realInput {
+                    background-color: #4CB050;
+                    background-color: rgba(0, 0, 0, 0); //opacity: .5;
+                    width: 100%;
+                    font-size: 2rem;
+                    color: #3291FF;
+                    line-height: 2.8rem;
+                    text-indent: 3.6rem;
+                    letter-spacing: 3.18rem;
+                    text-overflow: clip; //-webkit-user-select: none;
+                }
+            }
+            .hideInput {
+                width: 2.2rem;
+                height: 10rem;
+                background-color: #FFFFFF;
+                position: absolute;
+                right: 0rem;
+                top: 8rem;
+                z-index: 10;
+            }
+            .disClick {
+                width: 100%;
+                position: absolute;
+                height: 6rem; //background-color: red;
+                left: 0;
+                top: 9rem;
+            }
+            .inputBot {
+                position: absolute;
+                width: 100%;
+                left: 0;
+                bottom: 2.4rem;
+                text-align: center;
+                .getSecuritBtn {
+                    font-size: 1.6rem;
+                    background-color: #FFFFFF;
+                    outline: none;
+                    border: none;
+					color: #000000;
+                }
+                .getAfter {
+                    color: #A0A0A0;
+                }
+            }
+        }
+    }
+</style>

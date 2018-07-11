@@ -1,0 +1,32 @@
+<template>
+	<div class="bk_ud_p">
+
+	</div>
+</template>
+
+<script>
+	import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+	export default {
+		data() {
+			return {
+			
+			
+			};
+		},
+		created: function() {
+		
+		},
+		methods: {
+	
+		
+
+		}
+	};
+</script>
+
+<style lang="less" >
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	.bk_ud_p {
+		
+	}
+</style>

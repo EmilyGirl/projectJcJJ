@@ -1,0 +1,136 @@
+<template>
+	<div class="bk_ud_p">
+		<header>
+			请上传本人手持身份证（正反面）及银行卡的照片，证件上的信息无遮挡，清晰可见。
+			<router-link to="/"> 查看示例>></router-link>
+		</header>
+
+		<div v-for="(item,index) of data">
+            <div class="defaultImg">
+                <div class="upload_photos" :style="{'backgroundImage':'url('+item+')'}">
+                    <input type="file" class="upload_input"   accept = "image/png,image/jpeg"   @change="getFile($event,index)">
+                </div>
+            </div>
+			<div class="middle_white"></div>
+		</div>
+
+		<!-- <div class="middle_white"></div>
+		<div class="upload_photos">
+			<input type="file" class="upload_input" @change="getFile($event,1)">
+		</div>
+		<div class="middle_white"></div>
+		<div class="upload_photos">
+			<input type="file" class="upload_input" @change="getFile($event,2)">
+		</div> -->
+
+		<Button @click='Submission'>
+			下一步
+		</Button>
+			<div class="middle_white"></div>
+				<div class="middle_white"></div>
+	</div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import { usernameKey, authKey, authName } from "@/config/config.js";
+import {
+    getCookie,
+    getoriginal,
+    decryptByDES,
+    uncompile
+} from "@/config/common.js";
+export default {
+    data() {
+        return {
+            data: [
+                "https://ss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1620249723.png",
+                "https://ss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1620249723.png",
+                "https://ss2.bdstatic.com/8_V1bjqh_Q23odCf/pacific/1620249723.png"
+            ]
+        };
+    },
+    created: function() {},
+    methods: {
+        getFile(event, type) {
+            let _this = this;
+            let files = event.target.files[0];
+            //创建读取文件的对象
+            let reader = new FileReader();
+            //创建文件读取相关的变量
+            let imgFile;
+            //为文件读取成功设置事件
+            reader.onload = function(e) {
+                // alert('文件读取完成');
+                imgFile = e.target.result;
+                let Base64 = imgFile.split(",")[1];
+                _this.$http
+                    .post("/Product/User/upLoadUserImgAndShow", {
+                        parameters: JSON.stringify({ imgStr: Base64 })
+                    })
+                    .then(res => {
+                        if (res.data.end == "ok") {
+							console.log(res.data)
+							_this.data.splice(type, 1, res.data.data.userImgUrl);
+							
+                        } else {
+                            this.$Toast(res.data.message);
+                        }
+                    });
+            };
+            //正式读取文件
+            reader.readAsDataURL(files);
+        },
+        Submission() {
+
+			alert('xiyibu')
+		}
+    }
+};
+</script>
+
+<style lang="less" >
+@import url("../../../assets/css/wechat/reset_rem.css");
+.bk_ud_p {
+    background: #fff;
+    .middle_white {
+        width: 100%;
+        height: 3rem;
+    }
+    header {
+        font-size: 1.3rem;
+        color: #999;
+        height: 5rem;
+        line-height: 1.6rem;
+        padding: 2rem 2rem;
+        a {
+            color: #4c9fff;
+        }
+    }
+    .upload_photos {
+        width: 55.3%;
+        margin: 0 auto;
+        background-color: #ccd8ed;
+        height: 12rem;
+        border-radius: 2px;
+        background-image: url("../../../assets/img/wechat/product/common_icon_tianjia.png");
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .defaultImg {
+        width: 55.3%;
+        margin: 0 auto;
+        background-color: #ccd8ed;
+        height: 12rem;
+        border-radius: 2px;
+        background-image: url("../../../assets/img/wechat/product/common_icon_tianjia.png");
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .upload_input {
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+    }
+}
+</style>

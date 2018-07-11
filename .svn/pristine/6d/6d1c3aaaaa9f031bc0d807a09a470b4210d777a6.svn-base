@@ -1,0 +1,178 @@
+<template>
+	<div class="zeek" id="zeek">
+		<ul class="wrapped_title">
+			<li v-for="(wrap,index) in wrapped" :class="{'wrap_li':selected==index}" @click="switchover(index)">{{wrap.title}}</li>
+			<li class="clear"></li>
+		</ul>
+		<div class="wrapped_box">
+      <div class="zeek_record11"  v-if="selected == 0">
+        <zeekRecord1  @toList="listGo1"/>
+        <!-- 2 -->
+      </div>     
+			<div class="zeek_record11"  v-if="selected == 1">
+      <zeekRecord2   @toList="listGo"/>
+      <!-- 1 -->
+      </div>
+			<div class="zeek_record11"  v-if="selected == 2">
+      <zeekRecord3  @toList="listGo2"/>
+      <!-- 3 -->
+      </div>
+		</div>
+		<div class="invit-close" v-if="close">{{ message }}</div>
+	</div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import footer from "@/components/wechat/public/Footer";
+import zeekRecord1 from "../zeek_record/zeek_record1";
+import zeekRecord2 from "../zeek_record/zeek_record2";
+import zeekRecord3 from "../zeek_record/zeek_record3";
+import {
+  usernameKey,
+  authKey,
+  authName,
+  usernameName
+} from "@/config/config.js";
+
+export default {
+  components: {
+    zeekRecord1,
+    zeekRecord2,
+    zeekRecord3
+  },
+  data() {
+    return {
+      message1: "去出借",
+      disabled: false,
+      toPropage: false,
+      chujie: false,
+      shengou: false,
+      nolength: false,
+      lock: true,
+      locks: true,
+      lockss: true,
+      selected: 0,
+      wrapped: [
+        {
+          title: "出借中"
+        },
+        {
+          title: "申购中"
+        },
+        {
+          title: "已还款"
+        }
+      ],
+
+      //   第一个tab对应的数据
+      rates: [],
+      rates1: [],
+      ratess: [
+        {
+          title: "123"
+        },
+        { title: "123" },
+        { title: "123" }
+      ],
+      currentPage: 1,
+      currentPages: 1,
+      currentPagess: 1, //新加申购中
+      close: "",
+      quancan: ""
+    };
+  },
+  filters: {
+    fixNum(value) {
+      // return value.toFixed(2);
+      var num2 = value.toFixed(3);
+      return num2.substring(0, num2.lastIndexOf(".") + 3);
+    },
+    formatDate(time) {
+      var date = new Date(time);
+      return formatDate(date, "yyyy-MM-dd");
+    }
+  },
+  created: function() {
+    //require("../../../assets/js/wechat/screenTouch.js");
+    if (this.$route.query.selected) {
+      this.selected = this.$route.query.selected;
+    }
+    // this.loadData();
+  },
+  mounted() {
+    // this.screenTouch();
+  },
+  methods: {
+    //   时间转换**************************
+    add0(m) {
+      return m < 10 ? "0" + m : m;
+    },
+    getDate(shijianchuo) {
+      //shijianchuo是整数，否则要parseInt转换
+      var time = new Date(shijianchuo);
+      var y = time.getFullYear();
+      var m = time.getMonth() + 1;
+      var d = time.getDate();
+      var h = time.getHours();
+      var mm = time.getMinutes();
+      var s = time.getSeconds();
+      return y + "-" + this.add0(m) + "-" + this.add0(d);
+    },
+    // ****************************************
+    switchover: function(index) {
+      // else {
+      this.selected = index;
+      // }
+    
+    },
+   
+    getxxx: function() {
+      if (this.$getCookie(usernameName)) {
+        return this.$decryptByDES(
+          this.$getCookie(usernameName),
+          this.$uncompile(usernameKey)
+        );
+      }
+    },
+    // 申购中
+    listGo: function(rate) {
+      console.log(rate);
+      this.$router.push({
+        name: "record_detail",
+        query: {
+         list: encodeURIComponent(JSON.stringify(rate)),
+          type: 1
+        }
+      });
+    },
+    // 出借中
+    listGo1: function(rate) {
+      console.log(123123);
+      this.$router.push({
+        name: "record_detail",
+        query: {
+          list: encodeURIComponent(JSON.stringify(rate)),
+          type: 2
+        }
+      });
+    },
+    //已还款 
+    listGo2: function(rate) {
+      this.$router.push({
+        name: "record_detail",
+        query: {
+          list: encodeURIComponent(JSON.stringify(rate)),
+          type: 3
+        }
+      });
+    },
+   
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/zeek_rewards.less");
+</style>

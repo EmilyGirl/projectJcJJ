@@ -1,0 +1,125 @@
+<template>
+	<div class="public-alert" v-if="isAlert">
+		<div class="vue-alerts">
+			<img src="../../../assets/img/wechat/mine/pop_bg.png" class="bg" />
+			<button @click="btnFunc">立即开通</button>
+			<img src="../../../assets/img/wechat/mine/icon_guanbi.png" class="vue-close-btn" @click="close" />
+			<div class="vue-about"><span @click="about">— 了解存管 —</span></div>
+		</div>
+	</div>
+</template>
+
+<script>
+import { createForm } from "@/config/common.js";
+export default {
+  name: "vue-public-alert",
+  props: {
+    isAlert: {
+      type: Boolean,
+      default: false
+    },
+    isHistory: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      //				msg: {
+      //					title: '提示',
+      //					body: '当前银行卡正在换卡审核中，请在审核完成后再行充值。',
+      //					affirm: '确定'
+      //				},
+      cunguanUrl: "",
+      cunguanParam: ""
+    };
+  },
+  computed: {},
+  created: function() {},
+  methods: {
+    close() {
+      this.$emit("alert-close");
+    },
+    btnFunc() {
+      //				this.$emit('alert-func');
+      var _this = this;
+      if (this.isHistory) {
+        //					alert('存管页面');
+        _this.$http
+          .post("/Product/User/activateCard", {
+            parameters: "{}"
+          })
+          .then(function(res) {
+            if (res.data.end == "ok") {
+              _this.cunguanUrl = res.data.url;
+              _this.cunguanParam = res.data.data;
+              createForm(_this.cunguanParam, _this.cunguanUrl);
+            } else {
+              alert(res.data.message);
+            }
+          })
+          .catch(function(err) {
+            console.log(err);
+          });
+      } else {
+        this.$router.push({
+          path: "/wechat/subpage/bind_bank"
+        });
+      }
+    },
+    about() {
+      // alert('了解存管');
+      this.$router.push({
+        path: "/app_terminal/aboutCG"
+      });
+    }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+.public-alert {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  .vue-alerts {
+    width: 28rem;
+    margin: 30% auto;
+    text-align: center;
+    position: relative;
+    .bg {
+      width: 100%;
+    }
+    .vue-close-btn {
+      width: 5rem;
+      margin: 3.15rem;
+    }
+    button {
+      position: absolute;
+      width: 21rem;
+      top: 24.2rem;
+      left: 50%;
+      margin-left: -10.5rem;
+      padding: 0.9rem;
+      font-size: 1.6rem;
+      background-color: #ff5050;
+      color: #ffffff;
+      border-radius: 2rem;
+    }
+    .vue-about {
+      width: 100%;
+      font-size: 1.2rem;
+      position: absolute;
+      top: 29.1rem;
+      text-align: center;
+      color: #2772ff;
+    }
+  }
+}
+</style>

@@ -1,0 +1,726 @@
+<template>
+  <div class="product-detail">
+
+    <transition enter-active-class="slideInDown" leave-active-class="slideOutUp">
+      <div class="page1" @touchstart="touchstartLi" @touchmove='touchmoveLi("page1",$event)' @touchend="touchendLi" v-show='page1'>
+
+        <!--    <div class="bang-mask" v-if="set">
+                    <div class="bang-content">
+                        <p class="bang-title">提示</p>
+                        <p class="bang-common">您尚未设置交易密码</p>
+                        <p class="bang-common">设置完成后即可充值出借哦~</p>
+                        <div class="bangBtn clearfix">
+                            <span class="fl firstBtn" @click="set = !set">取消</span>
+                            <router-link class="fr secondBtn" :to="{path:'./personal_data'}">前往设置</router-link>
+                        </div>
+                    </div>
+                </div> -->
+        <div class="product-header">
+          <p class="interest">
+            <span class="yuan">{{ baseEarnings | fixNum(1) }}</span>
+            <var class="yuan-mum">%</var>
+            <span class="jiali" v-if="isJiangLi == '1'">+{{ Number(jiangLiEarnings) | fixNum(1)}}
+              <var class="jiali-num">%</var>
+            </span>
+          </p>
+          <p class="title-top">预期年化收益率
+            <!-- v-if="isJiangLi == '1'"  -->
+            <img @click="tip_detailshow = !tip_detailshow" v-if="isJiangLi == '1'" src="./../../../assets/img/wechat/product/tips2.png" alt=""></p>
+          <p v-if="tip_detailshow" class="tip_detail"> 出借期内，加息{{ Number(jiangLiEarnings) | fixNum(1) }}%</p>
+        </div>
+
+        <!-- 进度 -->
+        <div class="progress">
+          <!-- parseInt(wcjd*100) -->
+          <span class="progress_text" :style="{width:getprogress(parseInt(wcjd*100)),transition:'width 1s ease-in-out'}">{{parseInt(wcjd*100)+'%'}}</span>
+          <span class="schedule schedule1" v-if="qxType != 99">
+            <span class="progress-width">
+              <var class="jindu-bg" style="background:'rgba(39.114.255,.2)" :style="{width:parseInt(wcjd*100)+'%',transition:'width 1s ease-in-out'}"></var>
+              <!-- animation: ; -->
+            </span>
+          </span>
+
+          <div class="product_desc">
+            <div class="desc_item">
+              <p class="desc_num">{{(parseInt(item.financingAmount)) | toCurrencyString}}</p>
+              <p>项目金额(元)</p>
+            </div>
+            <div class="desc_item">
+              <p class="desc_num">{{item.lcqx}}天 </p>
+              <p>借款期限</p>
+            </div>
+            <div class="desc_item">
+              <p class="desc_num"> {{ parseInt(leftCopies/100) | toCurrencyString}}</p>
+              <p>剩余可投(元)</p>
+            </div>
+          </div>
+
+        </div>
+        <!-- 进度 -->
+        <div class="calculator">
+          <div class="calculator-content">
+            <div class="calculator-common border clearfi x">
+              <span class="fl">金额</span>
+              <span class="fr" style="padding-left:1rem">元</span>
+              <input class="fr " type="number" v-model="message" oninput="if(value.length>10)value=value.slice(0,10)" :placeholder="parseInt(atleastMoney/100) + '元起投'" />
+
+            </div>
+            <div class="calculator-common clearfix" style="border:none">
+              <var class="fl" style="width: 60%;color: #202020;font-size:1.5rem;"> <img style="width: 1.5rem;" src="./../../../assets/img/wechat/product/money$.png" alt=""> 预期收益</var>
+              <p class="fr">{{ message*(baseEarnings + Number(jiangLiEarnings))*tzqx/(365*100) | fixNum }}元</p>
+            </div>
+
+          </div>
+        </div>
+        <div class="algorithm">
+          <p class="productIntroduction">
+            <span class="blackLine"> </span> 项目简介</p>
+          <div class="prodDesc">
+            <p>项目名称
+              <span class="resdata"> {{title}} </span>
+            </p>
+            <p> 产品类型
+              <span class="resdata"> {{cplx}} </span>
+            </p>
+            <p> 还款方式
+              <span class="resdata">{{fxfs}} </span>
+            </p>
+            <p>起息时间
+              <span class="resdata">T{{daytime}},募集成功{{daytime ? "次日" : "当日"}}计息 </span>
+            </p>
+            <p>募集周期
+              <span class="resdata"> {{ collectDays }}天 </span>
+            </p>
+          </div>
+
+        </div>
+        <!-- 		<div class="ment">
+			<img v-if="lock" @click="lock=!lock,unlock=!unlock" src="../../../assets/img/wechat/product/lock.png" />
+			<img v-if="unlock" @click="unlock=!unlock,lock=!lock" src="../../../assets/img/wechat/product/unlock.png" />购买即同意
+			<router-link :to="{path: '/app_terminal/use_agreement',query:{productId:this.$route.query.productId}}">服务协议</router-link> 与
+			<router-link :to="{path: './project_details',query:{productId:this.$route.query.productId}}">项目详情</router-link>
+		</div> -->
+
+        <p class="prompting">- 预期收益不代表实际收益，市场有风险，出借需谨慎 -</p>
+        <p class="more"> <img src="../../../assets/img/wechat/product/more.png">向上拖动，查看更多详情</p>
+
+      </div>
+    </transition>
+
+    <transition enter-active-class="slideInUp" leave-active-class="slideOutDown">
+        <div v-if="!page1" class="ComWarp" @touchend="touchendLi" @touchstart="touchstartLi" @touchmove='touchmoveLi("page2",$event)' style="background:#fff;padding-top:1px;height:68rem;overflow-y: auto;">
+          <product-detail :productId="this.$route.query.productId" :messageText='message' />
+        </div>
+    </transition>
+    <!-- <transition name="fade">
+      <div v-if="close" class="prompt">{{closeMeg}}</div>
+    </transition> -->
+
+    <!-- 登录 -->
+    <div class="btn" v-if='!btnW100' style="heigh:5rem">
+      <span class="botTitle">
+        {{balance}}
+      </span>
+      <button class="btnBot" :class="{on:isShow}" @click="buyFun()">{{info}}</button>
+    </div>
+
+    <!-- 没登录 -->
+    <div class="btn" v-if='btnW100' style="heigh:5rem">
+      <button class="btnBot" :class="{on:isShow}" style="width:100%" @click="buyFun()">{{info}}</button>
+    </div>
+
+    <vue-public-alert :isAlert='isAlert' @alert-close='alertClose'></vue-public-alert>
+
+    <!-- 后期 必须组件 -->
+    <!-- 绑定银行卡 弹窗 -->
+    <div class="bang-mask" style="z-index:101" v-if="bang">
+      <div class="bang-content">
+        <p class="bang-title">提示</p>
+
+        <div class="bang-common">
+          <p> 您尚未绑定银行卡</p>
+          <p>绑定完成后即可充值出借哦</p>
+        </div>
+        <div class="bangBtn clearfix">
+          <span class="fl firstBtn" @click="bang = !bang">取消</span>
+          <router-link class="fr secondBtn" :to="{path:'/wechat/subpage/my_bankcard'}">前往绑卡</router-link>
+        </div>
+      </div>
+    </div>
+    <!--银行卡解绑中            弹窗 -->
+    <div class="bang-mask" style="z-index:101" v-if="relieveBang">
+      <div class="bang-content" style="height:20rem">
+        <p class="bang-title">提示</p>
+        <p class="bang-common">你的银行卡解绑流程尚未完成</p>
+        <p class="bang-common">暂不可操作</p>
+        <div class="bangBtn clearfix">
+          <Button@click.native="relieveBang = !relieveBang">好的</Button>
+        </div>
+      </div>
+    </div>
+    <!--评测           弹窗 -->
+    <div class="bang-mask" style="z-index:101" v-if="noTesting">
+      <div class="bang-content" style="height:30rem;text-align:  center">
+        <p class="bang-title">提示</p>
+        <img style="width:32%;margin:1rem 0" src="../../../assets/img/wechat/product/testing.png" alt="">
+        <div class="bang-common">
+          <p> 您还没进行风险等级评测，</p>
+          <p>请在评测后再进行出借操作。</p>
+        </div>
+        <div class="bangBtn clearfix">
+          <span class="fl firstBtn" @click="noTesting = !noTesting">取消</span>
+          <router-link class="fr secondBtn" :to="{path:'/wechat/disclosure/evaluate'}">前往评测</router-link>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script>
+// import productDetail from "./details";
+import productDetail from "./project_details";
+import vuePublicAlert from "../public/publicAlert.vue";
+import {
+    usernameKey,
+    authKey,
+    authName,
+    usernameName
+} from "@/config/config.js";
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+export default {
+    name: "hello",
+    components: {
+        vuePublicAlert,
+        productDetail
+    },
+    data: function() {
+        return {
+            noTesting: false,
+            relieveBang: false,
+            bang: false,
+            tip_detailshow: false,
+            loading: false,
+            isMove: 0,
+            lock: true,
+            startX: "",
+            startY: "",
+            page1: true,
+            isAlert: false,
+            closeMeg: "请阅读或同意 服务协议与项目详情",
+            daytime: "",
+            qxType: "",
+            wcjd: 0,
+            baseEarnings: 0,
+            jiangLiEarnings: "",
+            leftCopies: "",
+            productStatus: "",
+            title: "",
+            atleastMoney: "",
+            message: "",
+            lcqx: "",
+            lock: false,
+            unlock: true,
+            close: false,
+            isBindBank: "",
+            isPayPwd: "",
+            productId: "",
+            noLogin: "",
+            set: false,
+            isJiangLi: "",
+            tzqx: "",
+            isHistory: "",
+            balance: "加载中..",
+            allmoney: 0,
+            info: "请稍后...",
+            isShow: true,
+            cplx: "",
+            fxfs: "",
+            collectDays: "",
+            item: {
+                title: "",
+                financingAmount: "", //项目总金额
+                leftCopies: "", //剩余分数
+                lcqx: "", //项目期限
+                wcjd: "", //预期利率
+                productStatus: "",
+                appraisalResultStatus: "" //  是否需要评测   用户评测结果状态 0没有评测或者评测已过期 1 已经评测
+            },
+            code: 0,
+            islogin: false,
+            message: "",
+            productType: 0,
+            btnW100: false
+        };
+    },
+    watch: {
+        message: function(val) {
+            if (!this.islogin || this.btnW100) return;
+
+            if (this.leftCopies == 0 && this.productStatus == 0) {
+                this.info = "已售罄";
+                return;
+            }
+            if (parseFloat(this.allmoney) < parseInt(this.atleastMoney / 100)) {
+                this.balance =
+                    "余额不足" +
+                    parseFloat(this.atleastMoney / 100).toFixed(2) +
+                    "元";
+                this.info = "请先充值";
+                this.isShow = true;
+            } else if (
+                val > parseFloat(this.allmoney) &&
+                this.leftCopies != 0
+            ) {
+                this.balance =
+                    "余额不足" + parseFloat(this.message).toFixed(2) + "元";
+                this.info = "请先充值";
+                this.isShow = true;
+                // setTimeout(function() {
+                // 	this.$router.push({
+                // 		name: "wx_recharge"
+                // 	});
+                // }, 2000);
+            } else if (
+                parseFloat(this.allmoney) >= val &&
+                this.leftCopies != 0 &&
+                val != 0 &&
+                val != "" &&
+                this.productStatus == 0
+            ) {
+                this.balance = "可用余额" + this.allmoney + "元";
+                this.info = "授权出借";
+                this.isShow = true;
+            }
+        },
+        allmoney: function(val) {
+            console.log(1234656);
+        }
+    },
+    filters: {
+        fixNum(value, index) {
+            var index = index || 2;
+            //  return value.toFixed(2);
+            var num2 = value.toFixed(index + 1);
+            return num2.substring(0, num2.lastIndexOf(".") + index + 1);
+        }
+    },
+    created: function() {
+        this.islogin = this.getxxx() ? true : false;
+        if (!this.islogin) {
+            this.btnW100 = true;
+            this.info = "立即登录";
+        }
+
+        this.loadData();
+        if (this.islogin) {
+            var _this = this;
+            // code 为 1 说明是新用户 直接跳咱们开户页面
+            // code 为 0 已绑卡 不用做任何跳转
+            // code 为 3 为后台待审核 不用做任何跳转
+            // code 为 4 为后台审核通过 不用做任何跳转
+            // code 为 2 已解绑 不用做任何跳转
+            // code 为 5 有实名用户 直接调用开户接口
+            _this.$http
+                .post("/Product/User/isActivate", {
+                    parameters: "{}"
+                })
+                .then(function(res) {
+                    _this.code = res.data.data.code;
+                })
+                .catch(function(err) {});
+        }
+    },
+    methods: {
+        getprogress(number) {
+            if (2 < number && number <= 95) {
+                return number + 3 + "%";
+            } else if (2 >= number) {
+                return 5 + "%";
+            } else {
+                return 98 + "%";
+            }
+        },
+        getxxx() {
+            if (this.$getCookie(authName)) {
+                return this.$decryptByDES(
+                    this.$getCookie(authName),
+                    this.$uncompile(authKey)
+                );
+            }
+        },
+        loadData: function() {
+            this.productId = this.$route.query.productId;
+            var _this = this;
+            _this.$http
+                .post("/Product/getProductById", {
+                    parameters: '{"productId":"' + _this.productId + '"}'
+                })
+                .then(function(res) {
+                    if (res.data.end == "ok") {
+                        _this.daytime = Number(res.data.obj.calcInterestWay);
+                        _this.qxType = res.data.obj.qxType;
+                        _this.wcjd = res.data.obj.wcjd;
+                        //  _this.wcjd =.99;
+
+                        _this.baseEarnings = res.data.obj.baseEarnings;
+                        _this.jiangLiEarnings = res.data.obj.jiangLiEarnings;
+                        _this.leftCopies = res.data.obj.leftCopies;
+                        _this.productStatus = res.data.obj.productStatus;
+                        _this.title = res.data.obj.title;
+                        _this.atleastMoney = res.data.obj.atleastMoney;
+                        _this.lcqx = res.data.obj.lcqx;
+                        _this.isJiangLi = res.data.obj.isJiangLi;
+                        _this.tzqx = res.data.obj.tzqx;
+                        // 产品类型
+                        _this.cplx = res.data.obj.cplx;
+                        _this.fxfs = res.data.obj.fxfs;
+                        _this.collectDays = res.data.obj.collectDays;
+                        //项目详情
+                        // 产品类别
+                        _this.productType = res.data.obj.productType;
+
+                        _this.item.title = res.data.obj.title;
+                        _this.item.financingAmount = (
+                            res.data.obj.financingAmount / 100
+                        ).toFixed(2);
+                        _this.item.leftCopies = res.data.obj.leftCopies / 100;
+                        _this.item.lcqx = res.data.obj.lcqx;
+                        _this.item.wcjd = res.data.obj.wcjd * 100;
+                        _this.item.productStatus = res.data.obj.productStatus;
+
+                        if (_this.islogin) {
+                            _this.$http
+                                .post("/Product/User/showMyAccountNew", {
+                                    parameters: "{}"
+                                })
+                                .then(function(res) {
+                                    _this.appraisalResultStatus =
+                                        res.data.obj.appraisalResultStatus;
+
+                                    if (res.data.end == "ok") {
+                                        _this.allmoney = parseFloat(
+                                            res.data.obj.leftMoney / 100
+                                        ).toFixed(2);
+                                        // 判断是不是新手  和 新手标
+                                        if (
+                                            _this.productType == 1 &&
+                                            res.data.obj.buyFreshmanProduct == 1
+                                        ) {
+                                            _this.info = "新手专享";
+                                            _this.btnW100 = true;
+                                        } else if (
+                                            parseFloat(_this.allmoney) <
+                                            parseInt(_this.atleastMoney / 100)
+                                        ) {
+                                            _this.info = "请先充值";
+                                            _this.balance =
+                                                "余额不足" +
+                                                parseFloat(
+                                                    _this.atleastMoney / 100
+                                                ).toFixed(2) +
+                                                "元";
+                                            _this.isShow = true;
+                                        } else if (
+                                            parseFloat(_this.allmoney) >=
+                                            parseInt(_this.atleastMoney / 100)
+                                        ) {
+                                            //  if(false){
+                                            //         //  是否 评测
+
+                                            // }else
+                                            _this.info = "授权出借";
+                                            _this.balance =
+                                                "可用余额" +
+                                                _this.allmoney +
+                                                "元";
+                                            _this.isShow = true;
+                                        }
+                                        // 检查标的 状态  是不是0
+                                        _this.checkproductStatus();
+                                    }
+                                })
+                                .catch(function(err) {});
+                        } else {
+                            _this.balance =
+                                "余额不足" +
+                                parseInt(_this.atleastMoney / 100).toFixed(2) +
+                                "元"; //
+                            // 检查标的 状态  是不是0
+                            _this.checkproductStatus();
+                        }
+                        // }
+
+                        // 原因  ajax  异步 导致 这一块 被覆盖了
+                    }
+                })
+                .catch(function(err) {
+                    console.log(err);
+                });
+            //					});
+            //判断起投金额和剩余金额
+        },
+        buyFun: function() {
+            var _this = this;
+            if (_this.info == "新手专享") {
+                _this.$Toast("仅限" + _this.info);
+                return;
+            }
+            if (
+                _this.info == "已售罄" ||
+                _this.info == "结算中" ||
+                _this.info == "已还款" ||
+                _this.info == "未审核" ||
+                _this.info == "已流标" ||
+                _this.info == "已满标" ||
+                _this.info == "还款中" ||
+                _this.info == "排队中"
+            ) {
+                _this.$Toast(_this.info + "，请选择其它标");
+                return;
+                // 123123
+            } else if (!this.islogin) {
+                // else if (_this.unlock) {
+                //   _this.closeMeg = "请阅读或同意 服务协议与项目详情";
+                //   _this.close = true;
+
+                //   setTimeout(function() {
+                //     _this.close = false;
+                //   }, 2000);
+                //   return;
+                // }
+
+                // 未登录
+                // sessionStorage.removeItem("isAlert");
+                // 删除首页弹窗
+                var href = encodeURIComponent(location.href);
+                // location.href = `/#/wechat/homepage/login?redirect=${href}`
+                location.replace(`/#/wechat/homepage/login?redirect=${href}`);
+            } else {
+                // 登录 并且钱也够
+
+                if (_this.info == "请先充值") {
+                    //  检查用户  银行卡状态
+                    _this.checkCode({
+                        name: "wx_recharge"
+                    });
+                } else if (!Number(_this.appraisalResultStatus)) {
+                    // alert(" 请评测,缺少ui");
+                    _this.noTesting = true;
+                    //    return;
+                } else if (_this.message == "") {
+                    _this.$Toast("请输入出借金额");
+                    return;
+                } else if (_this.message < parseInt(_this.atleastMoney / 100)) {
+                    _this.$Toast(
+                        "起投金额为" + parseInt(_this.atleastMoney / 100) + "元"
+                    );
+                    return;
+                } else if (parseInt(_this.message) % 100 > 0) {
+                    _this.$Toast("出借金额必须为100的整数倍");
+                    return;
+                } else if (_this.message > _this.leftCopies / 100) {
+                    _this.$Toast("出借金额大于剩余可投金额");
+                } else {
+                    //  检查用户  银行卡状态
+                    _this.checkCode({
+                        name: "go_invest",
+                        query: {
+                            productId: this.productId,
+                            moneyData: this.message,
+                            isJiangLi: this.isJiangLi,
+                            jiangLiEarnings: this.jiangLiEarnings,
+                            productMessage: encodeURIComponent(
+                                JSON.stringify(this.item)
+                            ),
+                            baseEarnings: this.baseEarnings
+                        }
+                    });
+                }
+            }
+        },
+        checkproductStatus() {
+            var _this = this;
+            if (_this.item.productStatus == 0) return;
+
+            if (_this.item.productStatus == 1) {
+                _this.info = "已售罄";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == 2) {
+                _this.info = "结算中";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == 3) {
+                _this.info = "已还款";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == -1) {
+                _this.info = "未审核";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == 4) {
+                _this.info = "已流标";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == 5) {
+                _this.info = "已满标";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == 6) {
+                _this.info = "还款中";
+                _this.btnW100 = true;
+            } else if (_this.item.productStatus == -3) {
+                _this.info = "排队中";
+                _this.btnW100 = true;
+            }
+        },
+        checkCode(routerparam) {
+            if (this.code == 1 || this.code == 5) {
+                this.isAlert = true;
+                return;
+            } else if (this.code == 3) {
+                // 后台待审核   不能买
+                this.relieveBang = true;
+                return;
+            } else if (this.code == 2 || this.code == 4) {
+                // 已经解绑   ==4 后台解绑审核通过 需要自己去点一下
+                this.bang = true;
+                return;
+            } else if (this.code == 0) {
+                this.$router.push(routerparam);
+            }
+        },
+
+        //金額全投
+        allMoney() {
+            this.message = this.allmoney;
+        },
+        alertClose() {
+            this.isAlert = false;
+        },
+        // 滑动
+        touchstartLi(e) {
+            this.lock = false;
+            this.startX = e.changedTouches[0].pageX;
+            this.startY = e.changedTouches[0].pageY;
+        },
+        touchendLi(e) {},
+        touchmoveLi(mark, e) {
+            if (this.lock) {
+                return;
+            }
+            // console.log(mark)
+            var endX = e.changedTouches[0].pageX,
+                endY = e.changedTouches[0].pageY;
+
+            //判断滑动方向
+
+            var direction = this.GetSlideDirection(
+                this.startX,
+                this.startY,
+                endX,
+                endY
+            );
+            switch (direction) {
+                case 0:
+                    // alert("没滑动");
+                    break;
+
+                case 1:
+                    // alert("向上");
+                    if (mark == "page1") {
+                        var t =
+                            document.documentElement.scrollTop ||
+                            document.body.scrollTop; //获取距离页面顶部的距离
+                        var h =
+                            document.body.scrollHeight ||
+                            document.documentElement.scrollHeight;
+                        var wh =
+                            document.documentElement.clientHeight ||
+                            document.body.clientHeight;
+                        // console.log(wh)
+                        // console.log(t)
+                        // console.log(h)
+                        // alert(h)
+                        // alert(wh+t)
+                        // alert( t + wh == h )
+                        //  ||  wh  > h
+                        if (t + wh > h - 5) {
+                            //  alert(1)
+                            // this.isMove = 1;
+                            // this.loading = true;
+                            setTimeout(() => {
+                                // this.loading = false;
+                                this.page1 = false;
+                                this.lock = true;
+                            }, 200);
+                        }
+                    }
+
+                    break;
+                case 2:
+                    if (mark == "page2") {
+                        var t =
+                            document.documentElement.scrollTop ||
+                            document.body.scrollTop; //获取距离页面顶部的距离
+                        // alert(t)
+                        if (t <= 10) {
+                            this.isMove = 2;
+                            this.loading = true;
+                            setTimeout(() => {
+                                this.loading = false;
+                                this.page1 = true;
+                                this.lock = true;
+                            }, 200);
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                case 4:
+                    break;
+
+                default:
+            }
+        },
+        GetSlideDirection(startX, startY, endX, endY) {
+            function GetSlideAngle(dx, dy) {
+                return Math.atan2(dy, dx) * 180 / Math.PI;
+            }
+
+            var dy = startY - endY;
+
+            var dx = endX - startX;
+            // console.log(dy+'...'+dx)
+
+            var result = 0;
+
+            //如果滑动距离太短
+
+            if (Math.abs(dx) < 100 && Math.abs(dy) < 100) {
+                return result;
+            }
+
+            var angle = GetSlideAngle(dx, dy);
+            // console.log(angle)
+
+            if (angle >= -45 && angle < 45) {
+                result = 4;
+            } else if (angle >= 45 && angle < 135) {
+                result = 1;
+            } else if (angle >= -135 && angle < -45) {
+                result = 2;
+            } else if (
+                (angle >= 135 && angle <= 180) ||
+                (angle >= -180 && angle < -135)
+            ) {
+                result = 3;
+            }
+
+            return result;
+        }
+    }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+@import url("../../../assets/css/wechat/product_detail.less");
+</style>

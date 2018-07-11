@@ -1,0 +1,461 @@
+<template>
+	<div id="personal" class="personal">
+		<section id="ml_block1" class="ml_block ml_block1">
+			<ul>
+				<!--<li class="ml_block_list" style="padding: 1.1rem 0;">
+					<div class="name" style="line-height: 3rem;">
+						头像
+					</div>
+					<div>
+						<span class="touxiang"><img src="../../../assets/img/wechat/mine/hit.png" alt="头像" /></span>
+					</div>
+				</li>-->
+				<li class="ml_block_list">
+					<div class="name">
+						注册手机
+					</div>
+					<div>
+						<span class="zichan">{{phone}}</span>
+					</div>
+				</li>
+				<li class="ml_block_list" @click="rzFun">
+					<div class="name">
+						实名认证
+					</div>
+					<div>
+						<span class="zichan">{{username}}</span>
+					</div>
+				</li>
+				<li class="ml_block_list"  @click="rzFun">
+					<div class="name">
+						身份证号
+					</div>
+					<div>
+						<span class="zichan">{{ID_NO}}</span>
+					</div>
+				</li>
+				<!--<li class="ml_block_list">
+					<div class="name">
+						用户授权
+					</div>
+					<div>
+						<img src="../../../assets/img/wechat/mine/right.png" />
+					</div>
+				</li>-->
+			</ul>
+		</section>
+		<!--<section id="ml_block2" class="ml_block ml_block2">
+			<ul>
+				<li class="ml_block_list">
+					<div class="name">
+						实名认证
+					</div>
+					<div>
+						<span class="zichan">{{ username }}</span>
+					</div>
+				</li>
+				<li class="ml_block_list">
+					<div class="name">
+						身份证号
+					</div>
+					<div>
+						<span class="zichan">{{ID_NO}}</span>
+					</div>
+				</li>
+			</ul>-->
+		</section>
+		<section id="ml_block3" class="ml_block ml_block3">
+			<ul>
+				<li class="ml_block_list" @click="toLogin">
+					<div class="name">
+						登录密码
+					</div>
+					<div>
+						{{log_pwd}}<img src="../../../assets/img/wechat/mine/right.png" />
+					</div>
+				</li>
+				<li class="ml_block_list" @click="tradPwd()">
+					<div class="name">
+						交易密码
+					</div>
+					<div>
+						{{trad_pwd}}<img src="../../../assets/img/wechat/mine/right.png" />
+					</div>
+				</li>
+				<li class="ml_block_list" @click="changePhone">
+					<div class="name">
+						修改银行手机号
+					</div>
+					<div>
+						{{bank_phone}}<img src="../../../assets/img/wechat/mine/right.png" />
+					</div>
+				</li>
+				<!--<li class="ml_block_list" @click="riskEva">
+					<div class="name">
+						风险评测
+					</div>
+					<div>-->
+					<!-- {{appraisalResult}} -->
+						<!--{{appraisalResultStatus ? "未评测" : appraisalResult }}<img src="../../../assets/img/wechat/mine/right.png" />
+					
+					</div>
+				</li>-->
+			</ul>
+		</section>
+		<!--<double-show-keyboard :isPay='isPay' @pas-end='pasEnd' @close='close' ref="pay" :countDown='countDown' :securityBtnCan='securityBtn' :payTitle='payTitle'></double-show-keyboard>-->
+		<button class="quit_btn" @click="quit">安全退出</button>
+		<transition name="fade">
+			<div class="welfare-close" v-if="closes">{{ message }} </div>
+		</transition>
+		<vue-public-alert :isAlert='isAlert' @alert-close='alertClose'></vue-public-alert>
+	</div>
+</template>
+
+<script>
+	import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+	import { usernameKey, authKey, authName, usernameName } from '@/config/config.js';
+	//import doubleShowKeyboard from "../../../assets/js/wechat/double-show-keyboard.js";
+	import vuePublicAlert from "@/assets/js/wechat/public-alert.js";
+	import { createForm } from '@/config/common.js'
+	export default {
+		name: 'personal',
+		data() {
+			return {
+				phone: '',
+				username: '',
+				ID_NO: '',
+				trad_pwd: '',
+				log_pwd: '修改',
+				renzheng: '',
+				isPayPwd: '',
+				payTitle: '设置6位交易密码',
+				isBindBank: '',
+				isPay: false,
+				countDown: '60s后重新获取',
+				countBool: false,
+				second: 60,
+				preventTime: true,
+				securityBtn: true,
+				count: 0,
+				data1: '',
+				data2: '',
+				closes: false,
+				bank_phone: '',
+				isHistory: '',
+				isAlert: false,
+				cunguanUrl: '',
+				cunguanParam: '',
+				appraisalResult:'',
+				appraisalResultStatus:''
+
+			}
+		},
+		created: function() {
+			var _this = this;
+			_this.phone = _this.$decryptByDES(_this.$getCookie(usernameName), _this.$uncompile(usernameKey));
+			var isBindBank;
+			var isPayPwd;
+
+			_this.$http.post('/Product/User/isActivate', {
+					parameters: '{}'
+				})
+				.then(function(res) {
+					if(res.data.end == 'ok') {
+						_this.code = res.data.data.code;
+//						_this.isHistory = _this.code == "2" ? true : false;
+//						if(_this.code != '0') {
+//							_this.isPayPwd = false;
+//						} else {
+//							_this.isPayPwd = true;
+//						}
+						
+						if(_this.code=="1"||_this.code=="5"){
+							_this.isPayPwd = true;
+						}else{
+							_this.isPayPwd = false;
+						}
+						
+						_this.$http.post('/Product/User/showMyAccountNew', {
+							parameters: '{}'
+						})
+						.then(function(res) {
+							if(res.data.end == 'ok') {
+								isBindBank = res.data.obj.isBindBank;
+								_this.appraisalResult = res.data.obj.appraisalResult;
+								_this.appraisalResultStatus =  res.data.obj.appraisalResultStatus;
+								console.log(res.data)	
+								if(_this.isPayPwd) {
+									_this.username = "未开户";
+									_this.ID_NO = "未开户";
+									_this.bank_phone = '银行存管未开户'
+									_this.trad_pwd = "银行存管未开户";
+								} else {
+									_this.phone = _this.$decryptByDES(_this.$getCookie(usernameName), _this.$uncompile(usernameKey));
+									_this.bank_phone = '修改'
+									_this.trad_pwd = "修改";
+									_this.username = res.data.usersInfo.realName;
+									_this.ID_NO = res.data.usersInfo.idcard;
+									
+								}
+								
+								//console.log(_this.user);
+							} else if(res.data.end == 'noLogin') {
+								_this.message = res.data.message;
+								_this.closes = true;
+								setTimeout(function() {
+									_this.closes = false;
+								}, 1000);
+							}
+						})
+						.catch(function(err) {
+							console.log(err)
+						});
+
+					}
+				})
+				.catch(function(err) {
+					console.log(err)
+				});
+		},
+		methods: {
+			payShow() {
+				if(this.trad_pwd == "银行存管未开户") {
+					this.isPay = true;
+					var _this = this;
+					//					_this.times();
+					this.$refs.pay.countBool = _this.countBool; //取消发送按钮
+				} else {
+					this.$router.push({
+						path: '/wechat/subpage/revise_traders_pwd',
+					});
+				}
+
+			},
+			//			times() {
+			//				var _this = this;
+			//				var wait = _this.second;
+			//				function time() {
+			//					if(wait == 0) {
+			//						clearInterval(window.countTime);
+			//						_this.securityBtn = false;
+			//						_this.countDown = '重新发送'
+			//						wait = _this.second;
+			//					} else {
+			//						_this.securityBtn = true;
+			//						_this.$refs.pay.securitBtnCan(_this.securityBtn);
+			//						wait--;
+			//						_this.countDown = wait + "s后重新获取"
+			//
+			//					}
+			//				};
+			//				window.countTime = setInterval(time, 1000);
+			//			},
+			pasEnd(val) {
+				var _this = this;
+				var data1, data2;
+
+				//console.log(val); //得到密码 可能会进行一些加密动作
+				//				setTimeout(() => { // 模拟请求接口验证密码中 ..
+				//					//					if(true) { // 密码正确
+				//					this.$refs.pay.$payStatus(false) // 拿到子组件的事件
+				//					//this.$refs.pay.isPay=!this.isPay;
+				//					//alert("success");
+				//					//					} else {
+				//					//						this.$refs.pay.$payStatus(false)
+				//					//					}
+				//				}, 1000);
+
+				if(_this.count == 0) {
+					_this.data1 = val;
+					_this.count++;
+					_this.$refs.pay.payStatusMsg("", "提交成功,请确认密码");
+					setTimeout(() => { // 模拟请求接口验证密码中 ..
+						_this.payTitle = "请确认交易密码";
+						_this.$refs.pay.$payStatus(false) // 拿到子组件的事件
+					}, 800);
+					_this.message = "提交成功,请确认密码";
+					_this.closes = true;
+					setTimeout(function() {
+						_this.closes = false;
+					}, 1000);
+				} else {
+
+					_this.data2 = val;
+					if(_this.data1 != _this.data2) {
+						//alert("两次密码输入不一致,请重新输入");
+						_this.$refs.pay.payStatusMsg("", "两次密码输入不一致,请重新输入");
+						setTimeout(() => { // 模拟请求接口验证密码中 ..
+							_this.$refs.pay.$payStatus(false) // 拿到子组件的事件
+						}, 800);
+						_this.message = "两次密码输入不一致,请重新输入";
+						_this.closes = true;
+						setTimeout(function() {
+							_this.closes = false;
+						}, 1000);
+
+						_this.count = 0;
+						_this.data2 = '';
+						_this.payTitle = "设置6位交易密码";
+					} else {
+						_this.$http.post('/Product/User/updatePayPwd', {
+								parameters: '{"password":' + _this.data1 + ',"pwd":' + _this.data2 + ',"username":' + _this.phone + '}'
+							})
+							.then(function(res) {
+								if(res.data.end == 'ok') {
+									_this.closes = true;
+									_this.message = res.data.message;
+									_this.$refs.pay.payStatusMsg("交易密码设置成功", "");
+									setTimeout(() => { // 模拟请求接口验证密码中 ..
+										_this.$refs.pay.$payStatus(true); // 拿到子组件的事件
+										setTimeout(function() {
+											_this.isPay = false;
+											_this.closes = false;
+											_this.data1 = '';
+											_this.data2 = '';
+										}, 1800);
+									}, 1000);
+									_this.trad_pwd = "修改";
+									//console.log(_this.user);
+								} else if(res.data.end == 'noLogin') {
+									_this.message = res.data.message;
+									_this.closes = true;
+									setTimeout(function() {
+										_this.closes = false;
+									}, 1000);
+								}
+							})
+							.catch(function(err) {
+								console.log(err)
+							});
+
+					}
+
+				}
+				//				console.log("data1:" + _this.data1);
+				//				console.log("data2:" + _this.data2);
+
+			},
+			close() {
+				var _this = this;
+				if(this.$refs.pay.val.length > 0) {
+					this.$refs.pay.val = [];
+				}
+				//配合使用
+				this.isPay = !_this.isPay;
+				clearInterval(window.countTime);
+				var second = _this.second = 60;
+				_this.countDown = second + "s后重新获取"
+				//_this.times();
+				//配合使用-end
+			},
+			toLogin() {
+				this.$router.push({
+					path: '/wechat/subpage/revise_login_pwd',
+				});
+			},
+			riskEva(){
+				this.$router.push({
+					path: '/wechat/disclosure/evaluate',
+				});
+			},
+			tradPwd() {
+				var _this = this;
+
+				if(_this.trad_pwd == "银行存管未开户") {
+					_this.alertShow();
+				} else if(_this.trad_pwd == "修改") {
+					_this.$http.post('/Product/User/changeTransPwd', {
+							parameters: '{"typeP":"2"}'
+						})
+						.then(function(res) {
+							if(res.data.end == 'ok') {
+								_this.cunguanUrl = res.data.url;
+								_this.cunguanParam = res.data.data;
+								createForm(_this.cunguanParam, _this.cunguanUrl);
+							} else {
+								_this.message = res.data.message;
+								_this.closes = true;
+								setTimeout(function() {
+									_this.closes = false;
+								}, 1000);
+							}
+						})
+						.catch(function(err) {
+							console.log(err)
+						});
+				}
+
+			},
+			changePhone() {
+				var _this = this;
+				if(this.bank_phone == "银行存管未开户") {
+					this.alertShow();
+				} else if(this.bank_phone == "修改") {
+					_this.$http.post('/Product/User/changeBankPhone', {
+							parameters: '{}'
+						})
+						.then(function(res) {
+							if(res.data.end == 'ok') {
+								_this.cunguanUrl = res.data.url;
+								_this.cunguanParam = res.data.data;
+								createForm(_this.cunguanParam, _this.cunguanUrl);
+							}
+						})
+						.catch(function(err) {
+							console.log(err)
+						});
+				}
+			},
+			alertClose() {
+				this.isAlert = false;
+			},
+			alertShow() {
+				var _this = this;
+				_this.$http.post('/Product/User/isActivate', {
+						parameters: '{}'
+					})
+					.then(function(res) {
+						if(res.data.end == 'ok') {
+							_this.code = res.data.data.code="2";
+//							_this.isHistory = _this.code == "2" ? true : false;
+//							if(_this.code != '0') {
+//								_this.isAlert = true;
+//							} else {
+//								return;
+//							}
+							if(this.code=="1"||this.code=="5"){
+								this.isAlert=true;
+							}else {
+								return;
+							}
+						}
+					})
+					.catch(function(err) {
+						console.log(err)
+					});
+			},
+			rzFun(){
+				if(this.username!='修改')
+				return;
+				alert(11111)
+				this.alertShow();
+			},
+			quit() {
+				this.$delCookie(authName);
+				// 删除首页不需要 弹窗标识  版本过后可能去掉
+				sessionStorage.removeItem('isAlert')
+				// 删除首页弹窗
+				this.$router.push({
+					path: '/wechat/homepage/login',
+				});
+			},
+		}
+	}
+</script>
+
+<style scoped>
+	@import url("../../../assets/css/wechat/jc_reset.css");
+	@import url("../../../assets/css/wechat/reset_rem.css");
+	@import url("../../../assets/css/wechat/layout.css");
+	@import url("../../../assets/css/wechat/mine.css");
+</style>

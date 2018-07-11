@@ -1,0 +1,34 @@
+<template>
+<button :style="{Style}" :disabled="disabled">
+	<slot>DEFAULT</slot>
+</button>
+</template>
+<script>
+	export default {
+		props: {
+		 disabled:{
+		 	 type: Boolean,
+		 	 default:false
+		 },
+		  style: {  
+		  	 type: Object,
+		    default: {
+			 		// 'background:'
+				}
+		  },
+		  width: {   
+		  	type: String,
+		    default: '5rem'
+		  },
+		  height:{
+		  	type: String,
+		    default: '2rem'
+		  }
+		},
+		computed: {
+			Style:function () {
+				return {...style, width:this.props.width, height : this.props.height}
+			}
+		},
+	}
+</script>

@@ -1,0 +1,219 @@
+
+.zeek{
+	*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box
+}
+    overflow-x: hidden;
+    overflow-y: scroll;
+    // width: auto;
+    font-size: .8rem;
+    /* z-index: 1; */
+
+.clear{
+    clear: both;
+}
+.wrapped_title{
+    width: 100%;
+    height: 4.5rem;
+    background: #FFFFFF;
+    border-top: 1px solid #EBEBEB;
+    border-bottom:1px solid #EBEBEB;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 11;
+}
+.wrapped_box{
+    margin-top: 4.5rem;
+    /* z-index: 11; */
+}
+.wrapped_title li{
+    float: left;
+    width: 20%;
+    margin: 0 2.2rem;
+    height: 4.5rem;
+    text-align:center;
+    line-height: 4.5rem;
+    font-size: 1.5rem;
+    color: #000000;
+}
+.wrap_li{
+    color: #2772FF!important;
+    border-bottom: 0.2rem solid #2772FF;
+}
+.zeek_rewards{
+    width: 37.5rem;
+    height: auto;
+    // margin: 1rem 0;
+    /* padding: 0.8rem 0 0 0; */
+    // background: #fff;
+    /* z-index: 111; */
+}
+
+.clear{
+    clear: both;
+}
+.huankuan{
+    font-size:1.2rem;
+color: #A0A0A0;
+text-align: left;
+line-height: 2.5rem;
+margin-bottom: 1rem;
+padding: 0.6rem 0.6rem;
+}
+
+.repay{
+    width: 100%;
+    height: 12rem;
+    background: #fff;
+    padding: 1.1rem ;
+}
+.repayLine{
+    width: 0.4rem;
+    height: 1.2rem;
+    background: #D8D8D8;
+    float: left;
+}
+.repayTitle{
+    float: left;
+    font-size: 1.4rem;
+color: #202020;
+margin-left: 0.9rem;
+
+}
+.repay1{
+    font-size:1.4rem;
+color: #606060;
+text-align: left;
+line-height: 22px;
+margin-top: 1.3rem;
+}
+.repayTop{
+    margin-top: 2rem;
+}
+.repayinfo{
+    font-size: 1.2rem;
+color: #A0A0A0;
+text-align: left;
+line-height: 2.5rem;
+margin-top: 1.2rem;
+padding: 0 1.1rem;
+}
+ table{
+     width: 100%;
+     margin: 0 auto;
+     margin-top: 5rem;
+ }
+thead td{
+    font-size: 1.2rem;
+color: #A0A0A0;
+text-align: center;
+width: 33%;
+height: 4.8rem;
+line-height: 4.8rem;
+}
+tbody tr td{
+    height: 4.8rem;
+   text-align: center;
+    line-height: 4.8rem;
+    font-size: 1.4rem;
+color: #606060;
+}
+tbody tr  td:nth-of-type(1){
+    width: 20%;
+}
+tbody tr  td:nth-of-type(2){
+    width: 40%;
+}
+tbody tr  td:nth-of-type(3){
+    width: 20%;
+}
+tbody tr:nth-child(odd){
+    background: #fff;
+}
+
+.remind{
+    // font-size: 1.2rem;
+color: #A0A0A0;
+text-align: center;
+margin-top: 5.8rem;
+}
+.repayaccount{
+    width: 100%;
+    height: auto;
+    background: #fff;
+    padding: 1.4rem 1.1rem 1.1rem 1.1rem ;
+    margin:  2rem 0 2rem 0;
+}
+.repayaccount1{
+    width: auto;
+    height: auto;
+    background: #fff;
+    padding: 1.4rem 1.1rem 1.1rem 1.1rem ;
+    margin:  2rem 0 2rem 0;
+}
+.repayLine1{
+    width: 0.4rem;
+    height: 1.2rem;
+    background: #D8D8D8;
+    float: left;
+}
+.repayTitle1{
+    float: left;
+    font-size: 1.4rem;
+color: #202020;
+margin-left: 0.9rem;
+
+}
+.repaycontent{
+color: #A0A0A0;
+line-height: 2.5rem;
+    margin-top: 1rem;
+}
+.repayoneinfo{
+color: #A0A0A0;
+margin: 1.5rem 0;
+font-size: 1.4rem;
+}
+.repayoneinfo1{
+    color: #A0A0A0;
+    margin: 1.5rem 0;
+    // font-size: 1.4rem;
+    }
+.watchmore{
+    // font-size: 1.2rem;
+    text-align: center;
+    color: #666666; 
+    margin-bottom: 1.5rem;
+}
+.tishi{
+    width: 18rem;
+    height: 2.6rem;
+    background: #F5F5F5;
+    border-radius: 100px;
+    text-align: center;
+    font-size: 1.4rem;
+    color: #606060;
+    line-height: 2.6rem;
+    margin-top: 1rem;
+    margin-left: 20%;
+    margin-bottom: 1rem;
+}
+.infoimg-box{
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+.imginfo{
+    // width: auto;
+    height: 12rem;
+    min-width: 2000px;
+    margin-top: 1rem;
+}
+.imginfo img{
+    width: 9rem;
+    height: 12rem;
+    margin-right:1.2rem 
+}
+}

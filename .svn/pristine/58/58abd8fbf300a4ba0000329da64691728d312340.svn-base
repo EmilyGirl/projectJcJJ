@@ -1,0 +1,280 @@
+<template>
+  <div id="record_detail">
+      <div class="record1_content">
+          <div class="record1_money">
+           <div class="record1_title">{{rate.title}}</div>
+           <div class="record1_time" v-if="type=='1'">申购中</div>
+          <div class="record1_time" v-if="type=='2'">出借中</div>
+          <div class="record1_time" v-if="type=='3'">已还款</div>
+          </div>
+          
+           <div class="record1_line"></div>
+           <div class="record1_money">
+             <div class="record1_money1">出借时间</div>
+             <div class="record1_money2">{{getDate(rate.payTime)}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">预期利率</div>
+             <div class="record1_money2">{{rate.baseRate}}%</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">加息利率</div>
+             <div class="record1_money2">{{rate.baseRate}}%</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">项目期限</div>
+             <div class="record1_money2">{{rate.lcqx}}天</div>
+           </div>
+             <div class="record1_money">
+             <div class="record1_money1">还款方式</div>
+            <div class="record1_money2" v-if="rate.payInterestWay==0">按月付息到期还本</div>
+						<div class="record1_money2" v-if="rate.payInterestWay==1">到期还本付息</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">出借本金</div>
+             <div class="record1_money2">{{(rate.inMoney/100).toFixed(2)}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">使用卡券</div>
+             <div class="record1_money2">
+            		<span v-if="rate.couponType==-1"></span>
+								<span  v-if="rate.couponType==0||rate.couponType==1">{{rate.coupon/100}}元理财券</span><br>
+								<span  v-if="rate.lijin">{{(rate.lijin/100).toFixed(2)}}元礼金</span>
+								<span  v-if="rate.couponType==4">{{rate.coupon}}%加息券</span>
+								<span  v-if="rate.couponType==2||rate.couponType==3">{{rate.hongbao/100}}元现金卡</span>
+
+             </div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">预期总收益</div>
+             <div class="record1_money2">{{(rate.shouyi/100)|fixNum}}元</div>
+           </div>
+            <div class="record1_money">
+             <div class="record1_money1">预计到期时间</div>
+             <div class="record1_money2">{{getDate(rate.finishTime - (!rate.calcInterestWay?(24*60*60*1000):0))}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">预计回款时间</div>
+             <div class="record1_money2">{{getDate(rate.returnTime - (!rate.calcInterestWay?(24*60*60*1000):0))}}</div>
+           </div>
+         </div>
+         <div class="record1_huankuan">还款计划</div>
+         <div class="record1_content11">
+              <div class="record1_title1">
+                  <span style="background: #D8D8D8;width:0.3rem;height:0.8rem;display:inline-block"></span>
+                  第一期</div>
+              <div class="record1_money">
+             <div class="record1_money11">预计还款时间&nbsp;:&nbsp;{{getDate(rate.returnTime - (!rate.calcInterestWay?(24*60*60*1000):0))}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money11">预计还款本息&nbsp;:&nbsp;{{((rate.inMoney/100)+(rate.shouyi/100)) | fixNum}}元</div>
+           </div>
+           <div class="record1_money">
+             <!-- 申购中 -->
+             <div class="record1_money11" v-if='type==1'>还款状态&nbsp;:&nbsp;-</div>
+             <!-- 已还款 -->
+             <div class="record1_money11" v-if='type==3'>还款状态&nbsp;:&nbsp;已还款</div>
+             <!-- 出借中 -->
+             <div class="record1_money11" v-if='type==2'>还款状态&nbsp;:&nbsp;待还款</div>
+           </div>
+         </div>
+         <div class="tobottom">
+             <div class="tobottom1" @click="toDetail(rate)">
+                 项目详情
+             </div>
+             <div class="tobottom2" v-if='type!=1' @click="topact(rate)">
+                 电子合同
+             </div>
+              <div class="tobottom2" v-if='type==1' @click="precondition">
+                 电子合同
+             </div>
+         </div>
+  </div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+import { formatDate } from "../../../assets/js/wechat/date.js";
+import {
+  usernameKey,
+  authKey,
+  authName,
+  usernameName
+} from "@/config/config.js";
+export default {
+  data() {
+    return {
+      rate: {},
+      type: ""
+    };
+  },
+  filters: {
+    fixNum(value) {
+      // return value.toFixed(2);
+      var num2 = value.toFixed(3);
+      return num2.substring(0, num2.lastIndexOf(".") + 3);
+    },
+    formatDate(time) {
+      var date = new Date(time);
+      return formatDate(date, "yyyy-MM-dd");
+    }
+  },
+  created: function() {
+     this.rate = JSON.parse(decodeURIComponent(this.$route.query.list));
+    this.type = this.$route.query.type;
+  },
+  methods: {
+    //   时间转换**************************
+    add0(m) {
+      return m < 10 ? "0" + m : m;
+    },
+    getDate(shijianchuo) {
+      //shijianchuo是整数，否则要parseInt转换
+      var time = new Date(shijianchuo);
+      var y = time.getFullYear();
+      var m = time.getMonth() + 1;
+      var d = time.getDate();
+      var h = time.getHours();
+      var mm = time.getMinutes();
+      var s = time.getSeconds();
+      return y + "-" + this.add0(m) + "-" + this.add0(d);
+    },
+    // ****************************************
+    toDetail: function(rate) {
+      this.$router.push({
+        name: "product_detail",
+        query: {
+          productId: rate.productId
+        }
+      });
+    },
+    topact: function(rate) {
+      var _this = this;
+      console.log(rate.hkly);
+      this.auth = _this.$decryptByDES(
+        _this.$getCookie(authName),
+        _this.$uncompile(authKey)
+      );
+      window.location.href = rate.hkly + "&auth=" + this.auth;
+    },
+    precondition: function() {
+      this.$Toast("申购处理中电子合同暂未生成");
+    },
+
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+.record1_content {
+  width: 98%;
+
+  background: #fff;
+  margin: 0.4rem 0;
+  padding-left: 0.8rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+.record1_content11 {
+  width: 98%;
+
+  background: #fff;
+  margin: 0.4rem 0;
+  padding-left: 0.8rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 5rem;
+}
+.record1_title {
+  font-size: 1.6rem;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 1rem;
+  float: left;
+}
+.record1_title1 {
+  font-size: 1.6rem;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 2rem;
+}
+.record1_time {
+  font-size: 1.2rem;
+  float: right;
+  color: #a0a0a0;
+  text-align: left;
+  margin-bottom: 1rem;
+  margin-right: 2rem;
+}
+.record1_line {
+  width: 100%;
+  height: 2px;
+  background: #e5e5e5;
+  margin-bottom: 1.5rem;
+}
+.record1_money {
+  overflow: hidden;
+  line-height: 2rem;
+  margin-bottom: 1rem;
+}
+.record1_money1 {
+  float: left;
+  font-size: 1.4rem;
+  color: #a0a0a0;
+  text-align: left;
+}
+.record1_money11 {
+  font-size: 1.4rem;
+  color: #202020;
+  text-align: left;
+}
+.record1_money2 {
+  float: right;
+  font-size: 1.4rem;
+  color: #202020;
+  margin-right: 1.75rem;
+}
+.record1_huankuan {
+  font-size: 1.4rem;
+  color: #3a3a3a;
+  padding-left: 0.8rem;
+  margin-bottom: 2rem;
+}
+.tobottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 98%;
+  height: 4rem;
+  background: #fff;
+  overflow: hidden;
+  padding: 1.2rem 0rem 0.8rem 0.8rem;
+}
+.tobottom1 {
+  background: #ffffff;
+  border: 1px solid #cccfd5;
+  border-radius: 100px;
+  width: 13rem;
+  height: 3rem;
+  float: left;
+  text-align: center;
+  line-height: 3rem;
+  font-size: 1.4rem;
+  color: #202020;
+}
+.tobottom2 {
+  background: #ffffff;
+  border: 1px solid #cccfd5;
+  border-radius: 100px;
+  width: 13rem;
+  height: 3rem;
+  float: left;
+  text-align: center;
+  line-height: 3rem;
+  font-size: 1.4rem;
+  color: #202020;
+  margin-left: 7rem;
+}
+</style>

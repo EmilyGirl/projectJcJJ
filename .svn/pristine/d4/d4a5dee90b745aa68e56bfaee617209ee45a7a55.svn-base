@@ -1,0 +1,238 @@
+<template>
+  <div id="record_detail">
+      <div class="record1_content">
+          <div class="record1_money">
+           <div class="record1_title">{{rate.title}}</div>
+           <div class="record1_time">申购中</div>
+          </div>
+          
+           <div class="record1_line"></div>
+           <div class="record1_money">
+             <div class="record1_money1">出借时间</div>
+             <div class="record1_money2">{{rate.money}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">预期利率</div>
+             <div class="record1_money2">{{rate.money}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">加息利率</div>
+             <div class="record1_money2">{{rate.endtime}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">项目期限</div>
+             <div class="record1_money2">{{rate.shouyi}}</div>
+           </div>
+             <div class="record1_money">
+             <div class="record1_money1">还款方式</div>
+             <div class="record1_money2">{{rate.money}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">出借本金</div>
+             <div class="record1_money2">{{rate.money}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">使用卡券</div>
+             <div class="record1_money2">{{rate.endtime}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">预期总收益</div>
+             <div class="record1_money2">{{rate.shouyi}}</div>
+           </div>
+            <div class="record1_money">
+             <div class="record1_money1">预计到期时间</div>
+             <div class="record1_money2">{{rate.endtime}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money1">预计回款时间</div>
+             <div class="record1_money2">{{rate.shouyi}}</div>
+           </div>
+         </div>
+         <div class="record1_huankuan">还款计划</div>
+         <div class="record1_content11">
+              <div class="record1_title1">
+                  <span style="background: #D8D8D8;width:0.3rem;height:0.8rem;display:inline-block"></span>
+                  第一期</div>
+              <div class="record1_money">
+             <div class="record1_money11">出借时间&nbsp;:&nbsp;{{rate.money}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money11">出借时间&nbsp;:&nbsp;{{rate.money}}</div>
+           </div>
+           <div class="record1_money">
+             <div class="record1_money11">出借时间&nbsp;:&nbsp;{{rate.money}}</div>
+           </div>
+         </div>
+         <div class="tobottom">
+             <div class="tobottom1">
+                 项目详情
+             </div>
+             <div class="tobottom2">
+                 电子合同
+             </div>
+         </div>
+  </div>
+</template>
+
+<script>
+import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+
+export default {
+  data() {
+    return {
+      rate: {
+        title: "集财小微融年度一百一十号",
+        time: "2018-5-9",
+        money: "1000",
+        shouyi: "7.99",
+        endtime: "2018-9-30"
+      }
+    };
+  },
+  filters: {
+    fixNum(value) {
+      // return value.toFixed(2);
+      var num2 = value.toFixed(3);
+      return num2.substring(0, num2.lastIndexOf(".") + 3);
+    },
+    formatDate(time) {
+      var date = new Date(time);
+      return formatDate(date, "yyyy-MM-dd");
+    }
+  },
+  created: function() {},
+
+  methods: {
+    //   时间转换**************************
+    add0(m) {
+      return m < 10 ? "0" + m : m;
+    },
+    getDate(shijianchuo) {
+      //shijianchuo是整数，否则要parseInt转换
+      var time = new Date(shijianchuo);
+      var y = time.getFullYear();
+      var m = time.getMonth() + 1;
+      var d = time.getDate();
+      var h = time.getHours();
+      var mm = time.getMinutes();
+      var s = time.getSeconds();
+      return y + "-" + this.add0(m) + "-" + this.add0(d);
+    }
+    // ****************************************
+  }
+};
+</script>
+
+<style lang="less" scoped>
+@import url("../../../assets/css/wechat/reset_rem.css");
+.record1_content {
+  width: 98%;
+
+  background: #fff;
+  margin: 0.4rem 0;
+  padding-left: 0.8rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+.record1_content11 {
+  width: 98%;
+
+  background: #fff;
+  margin: 0.4rem 0;
+  padding-left: 0.8rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 5rem;
+}
+.record1_title {
+  font-size: 1.6rem;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 1rem;
+  float: left;
+}
+.record1_title1 {
+  font-size: 1.6rem;
+  color: #333333;
+  text-align: left;
+  margin-bottom: 2rem;
+}
+.record1_time {
+  font-size: 1.2rem;
+  float: right;
+  color: #a0a0a0;
+  text-align: left;
+  margin-bottom: 1rem;
+  margin-right: 2rem;
+}
+.record1_line {
+  width: 100%;
+  height: 2px;
+  background: #e5e5e5;
+  margin-bottom: 1.5rem;
+}
+.record1_money {
+  overflow: hidden;
+  line-height: 2rem;
+  margin-bottom: 1rem;
+}
+.record1_money1 {
+  float: left;
+  font-size: 1.4rem;
+  color: #a0a0a0;
+  text-align: left;
+}
+.record1_money11 {
+  font-size: 1.4rem;
+  color: #202020;
+  text-align: left;
+}
+.record1_money2 {
+  float: right;
+  font-size: 1.4rem;
+  color: #202020;
+  margin-right: 1.75rem;
+}
+.record1_huankuan {
+  font-size: 1.4rem;
+  color: #3a3a3a;
+  padding-left: 0.8rem;
+  margin-bottom: 2rem;
+}
+.tobottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 98%;
+  height: 4rem;
+  background: #fff;
+  overflow: hidden;
+  padding: 1.2rem 0rem 0.8rem 0.8rem;
+}
+.tobottom1 {
+  background: #ffffff;
+  border: 1px solid #cccfd5;
+  border-radius: 100px;
+  width: 13rem;
+  height: 3rem;
+  float: left;
+  text-align: center;
+  line-height:3rem;
+  font-size: 1.4rem;
+  color: #202020;
+}
+.tobottom2 {
+  background: #ffffff;
+  border: 1px solid #cccfd5;
+  border-radius: 100px;
+  width: 13rem;
+  height: 3rem;
+  float: left;
+  text-align: center;
+  line-height:3rem;
+  font-size: 1.4rem;
+  color: #202020;
+  margin-left:7rem;
+}
+</style>

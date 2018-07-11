@@ -1,0 +1,110 @@
+<template>
+	<div id="payInput">
+		<button @click="payShow()">点击支付</button>
+		<vue-pay-keyboard :isPay='isPay' @pas-end='pasEnd' @close='close' ref="pay" :countDown='countDown' :payTitle='payTitle' @get-securit='getSecurit' :securityBtnCan='securityBtn'></vue-pay-keyboard>
+		<button @click="alertShow()">银行存管弹窗</button>
+		<vue-public-alert :isAlert='isAlert' :isHistory='isHistory' @alert-close='alertClose'></vue-public-alert>
+		
+	</div>
+</template>
+<script>
+	import reset_rem from "../../../assets/js/wechat/reset_rem.js";
+	import vuePublicAlert from "../../../assets/js/wechat/public-alert.js";
+	export default {
+		name: 'SecurityCode',
+		data() {
+			return {
+				isPay: false,
+				countDown: '20s后重新获取',
+				countBool: true,
+				second: 20,
+				preventTime: true,
+				securityBtn: true,
+				payTitle: '',
+				
+				//alert
+				isAlert:false,
+				isHistory:true,
+			}
+		},
+		methods: {
+			payShow() {
+				this.isPay = true;
+				var _this = this;
+				_this.times();
+				_this.payTitle = '请输入交易密码'
+
+			},
+			times() {
+				var _this = this;
+				var wait = _this.second;
+				this.$refs.pay.countBool = _this.countBool;
+
+				function time() {
+					if(wait == 0) {
+						clearInterval(window.countTime);
+						_this.securityBtn = false;
+						_this.$refs.pay.securitBtnCan(_this.securityBtn);
+						_this.countDown = '重新发送'
+						wait = _this.second;
+					} else {
+						_this.securityBtn = true;
+						_this.$refs.pay.securitBtnCan(_this.securityBtn);
+						wait--;
+						_this.countDown = wait + "s后重新获取"
+
+					}
+				};
+				window.countTime = setInterval(time, 1000);
+			},
+			pasEnd(val) {
+				var _this = this;
+				console.log(val); //得到密码 可能会进行一些加密动作
+				setTimeout(() => { // 模拟请求接口验证密码中 ..
+					if(val === '111111') { // 密码正确
+						this.$refs.pay.$payStatus(true) // 拿到子组件的事件
+						//this.$refs.pay.isPay=!this.isPay;
+						alert(111);
+
+					} else {
+						this.$refs.pay.$payStatus(false)
+					}
+				}, 1000);
+
+			},
+			close() {
+				var _this = this;
+
+				//配合使用
+				this.isPay = !_this.isPay;
+				clearInterval(window.countTime);
+				var second = _this.second = 20;
+				_this.countDown = second + "s后重新获取"
+				//_this.times();
+				//配合使用-end
+			},
+			getSecurit() {
+
+			},
+			
+			
+			//publicAlert
+			alertShow(){
+				this.isAlert=true;
+			},
+			alertClose(){
+				this.isAlert=false;
+			},
+			alertFunc(){
+				alert('存管页面');
+			}
+
+		}
+	}
+</script>
+<style lang="less" scoped>
+	#payInput{
+		font-size: 1.5rem;
+		
+	}
+</style>

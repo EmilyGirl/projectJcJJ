@@ -1,0 +1,14 @@
+<template>
+	<div class="yybg">
+		<img src="../../../assets/img/xp/yybg/operation_01.png"/>
+		<img src="../../../assets/img/xp/yybg/operation_02.png"/>
+		<img src="../../../assets/img/xp/yybg/operation_03.png"/>
+	</div>
+</template>
+
+<script>
+</script>
+
+<style scoped>
+	@import url("../../../assets/css/wechat/reset_rem.css");
+</style>
